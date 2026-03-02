@@ -1136,7 +1136,7 @@ def link_lin_vel_imitation_gauss(
         root_pos_w = asset.data.root_link_pos_w
         root_quat_w = asset.data.root_link_quat_w
         root_link_lin_vel_w = asset.data.root_link_lin_vel_w
-        root_ang_vel_w = asset.data.root_ang_vel_w
+        root_ang_vel_w = asset.data.root_link_ang_vel_w
         links_pos_w = asset.data.body_link_pos_w[:, link_indices]  # (batch_size, num_links, 3)
         link_pos_offset_w = links_pos_w - root_pos_w.unsqueeze(1)  # (batch_size, num_links, 3)
         link_lin_vel = math_utils.quat_apply_inverse(
@@ -1203,7 +1203,7 @@ def link_ang_vel_imitation_gauss(
     links_ang_vel_w = asset.data.body_link_ang_vel_w[:, link_indices]  # (batch_size, num_links, 3)
     if in_base_frame:
         root_quat_w = asset.data.root_link_quat_w
-        root_ang_vel_w = asset.data.root_ang_vel_w
+        root_ang_vel_w = asset.data.root_link_ang_vel_w
         link_ang_vel = math_utils.quat_apply_inverse(
             root_quat_w.unsqueeze(1).expand(-1, links_ang_vel_w.shape[1], -1),
             links_ang_vel_w - root_ang_vel_w.unsqueeze(1),
