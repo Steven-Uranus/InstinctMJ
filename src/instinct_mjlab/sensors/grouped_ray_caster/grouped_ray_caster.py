@@ -32,8 +32,6 @@ class GroupedRayCaster(RayCastSensor):
         self._needs_filter_continue = False
         self._mesh_filter_enabled: bool = False
         self._allowed_geom_lut: torch.Tensor | None = None
-        self._env_ids_grid = torch.empty(0, 0, dtype=torch.long)
-        self._ray_ids_grid = torch.empty(0, 0, dtype=torch.long)
         self._active_hop_capacity = 0
         self._active_hop_pnt = torch.empty(0, 0, 3)
         self._active_hop_vec = torch.empty(0, 0, 3)
@@ -64,10 +62,6 @@ class GroupedRayCaster(RayCastSensor):
 
         self.ray_starts = self._local_offsets.unsqueeze(0).repeat(self._num_envs, 1, 1).clone()
         self.ray_directions = self._local_directions.unsqueeze(0).repeat(self._num_envs, 1, 1).clone()
-        self._env_ids_grid = self._ALL_INDICES.unsqueeze(1).expand(-1, self._num_rays)
-        self._ray_ids_grid = (
-            torch.arange(self._num_rays, device=device, dtype=torch.long).unsqueeze(0).expand(self._num_envs, -1)
-        )
         ray_bodyexclude_torch = wp.to_torch(self._ray_bodyexclude)
         if ray_bodyexclude_torch.numel() > 0:
             self._ray_bodyexclude_value = int(ray_bodyexclude_torch[0].item())
@@ -268,6 +262,13 @@ class GroupedRayCaster(RayCastSensor):
             device=device,
             dtype=torch.int32,
         )
+        # Initialize once so non-active slots stay numerically safe.
+        self._active_hop_pnt.zero_()
+        self._active_hop_vec.zero_()
+        self._active_hop_vec[..., 2] = 1.0
+        self._active_hop_dist.fill_(-1.0)
+        self._active_hop_geomid.fill_(-1)
+        self._active_hop_normal.zero_()
         self._active_hop_capacity = capacity
 
     def _raycast_active_rays(
@@ -277,10 +278,19 @@ class GroupedRayCaster(RayCastSensor):
         current_origins: torch.Tensor,
         world_rays: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        active_slot_ids = torch.cumsum(active.to(dtype=torch.int32), dim=1) - 1
-        active_env_ids = self._env_ids_grid[active]
-        active_ray_ids = self._ray_ids_grid[active]
-        active_slot_ids = active_slot_ids[active].to(dtype=torch.long)
+        active_pairs = torch.nonzero(active, as_tuple=False)
+        active_env_ids = active_pairs[:, 0].to(dtype=torch.long)
+        active_ray_ids = active_pairs[:, 1].to(dtype=torch.long)
+
+        # Compute compact per-env slot ids (0..num_active_rays_in_env-1) using only active rows.
+        num_active_total = active_env_ids.numel()
+        flat_ids = torch.arange(num_active_total, device=active.device, dtype=torch.long)
+        is_env_head = torch.ones(num_active_total, device=active.device, dtype=torch.bool)
+        is_env_head[1:] = active_env_ids[1:] != active_env_ids[:-1]
+        env_group_ids = torch.cumsum(is_env_head.to(dtype=torch.int64), dim=0) - 1
+        env_group_heads = flat_ids[is_env_head]
+        active_slot_ids = flat_ids - env_group_heads[env_group_ids]
+
         max_active = int(active_slot_ids.max().item()) + 1
         self._ensure_active_hop_buffers(max_active)
 
@@ -291,15 +301,12 @@ class GroupedRayCaster(RayCastSensor):
         active_hop_normal = self._active_hop_normal[:, :max_active, :]
         active_hop_bodyexclude = self._active_hop_bodyexclude[:max_active]
 
-        active_hop_pnt.zero_()
-        active_hop_vec.zero_()
-        active_hop_vec[..., 2] = 1.0
-        active_hop_dist.fill_(-1.0)
-        active_hop_geomid.fill_(-1)
-        active_hop_normal.zero_()
-
-        active_hop_pnt[active_env_ids, active_slot_ids] = current_origins[active]
-        active_hop_vec[active_env_ids, active_slot_ids] = world_rays[active]
+        # Only touch active slots; inactive slots are ignored after scatter-back.
+        active_hop_pnt[active_env_ids, active_slot_ids] = current_origins[active_env_ids, active_ray_ids]
+        active_hop_vec[active_env_ids, active_slot_ids] = world_rays[active_env_ids, active_ray_ids]
+        active_hop_dist[active_env_ids, active_slot_ids] = -1.0
+        active_hop_geomid[active_env_ids, active_slot_ids] = -1
+        active_hop_normal[active_env_ids, active_slot_ids] = 0.0
 
         rays(
             m=self._model.struct,  # type: ignore[attr-defined]
