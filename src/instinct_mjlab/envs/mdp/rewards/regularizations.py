@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Sequence
 from mjlab.actuator import (
     BuiltinPositionActuator,
     BuiltinVelocityActuator,
+    DelayedActuator,
     XmlPositionActuator,
     XmlVelocityActuator,
 )
@@ -47,7 +48,7 @@ _NON_EFFORT_CTRL_ACTUATOR_TYPES = (
 
 def _unwrap_base_actuator(actuator):
     base_actuator = actuator
-    while hasattr(base_actuator, "base_actuator"):
+    while isinstance(base_actuator, DelayedActuator):
         base_actuator = base_actuator.base_actuator
     return base_actuator
 
@@ -57,16 +58,7 @@ def _iter_joint_actuator_targets_and_stiffness(asset: Articulation):
         if actuator.transmission_type != TransmissionType.JOINT:
             continue
         base_actuator = _unwrap_base_actuator(actuator)
-        if not hasattr(base_actuator, "stiffness"):
-            raise AttributeError(
-                f"Actuator '{type(base_actuator).__name__}' is missing stiffness for normalize_by_stiffness=True."
-            )
-        stiffness = base_actuator.stiffness
-        if stiffness is None:
-            raise ValueError(
-                f"Actuator '{type(base_actuator).__name__}' has stiffness=None for normalize_by_stiffness=True."
-            )
-        yield base_actuator.target_ids, stiffness
+        yield base_actuator.target_ids, base_actuator.cfg.stiffness
 
 
 def _joint_applied_and_computed_torque(asset: Articulation) -> tuple[torch.Tensor, torch.Tensor]:
@@ -110,39 +102,26 @@ def _body_lin_acc_w(
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
     """Compute body linear acceleration from step-to-step link linear velocity."""
-    body_link_lin_vel_w = asset.data.body_link_lin_vel_w[:, asset_cfg.body_ids, :]
-    acc_cache_name = f"_instinct_body_link_lin_acc_w_{asset_cfg.name}"
-    acc_step_cache_name = f"_instinct_body_link_lin_acc_step_{asset_cfg.name}"
-    sim_step = env._sim_step_counter
-    if getattr(env, acc_step_cache_name, None) == sim_step:
-        cached_body_link_lin_acc_w = getattr(env, acc_cache_name, None)
-        if cached_body_link_lin_acc_w is None:
-            raise RuntimeError(
-                f"Missing cached body linear acceleration '{acc_cache_name}' for sim step {sim_step}."
-            )
-        if cached_body_link_lin_acc_w.shape != body_link_lin_vel_w.shape:
-            raise RuntimeError(
-                f"Cached body linear acceleration shape mismatch: {cached_body_link_lin_acc_w.shape} vs"
-                f" expected {body_link_lin_vel_w.shape}."
-            )
-        return cached_body_link_lin_acc_w
+    body_link_lin_vel_w = asset.data.body_link_lin_vel_w
+    cache_key = asset_cfg.name
+    cache = env._instinct_body_lin_acc_cache
+    if cache_key not in cache:
+        cache[cache_key] = {
+            "sim_step": -1,
+            "vel": body_link_lin_vel_w.detach().clone(),
+            "acc": torch.zeros_like(body_link_lin_vel_w),
+        }
 
-    cache_name = f"_instinct_prev_body_link_lin_vel_w_{asset_cfg.name}"
-    prev_body_link_lin_vel_w = getattr(env, cache_name, None)
-    if prev_body_link_lin_vel_w is None:
-        body_link_lin_acc_w = torch.zeros_like(body_link_lin_vel_w)
-    elif prev_body_link_lin_vel_w.shape != body_link_lin_vel_w.shape:
-        raise RuntimeError(
-            f"Cached body linear velocity shape mismatch: {prev_body_link_lin_vel_w.shape} vs"
-            f" expected {body_link_lin_vel_w.shape}."
-        )
-    else:
-        body_link_lin_acc_w = (body_link_lin_vel_w - prev_body_link_lin_vel_w) / env.step_dt
-    body_link_lin_acc_w[env.episode_length_buf <= 1] = 0.0
-    setattr(env, cache_name, body_link_lin_vel_w.detach().clone())
-    setattr(env, acc_cache_name, body_link_lin_acc_w)
-    setattr(env, acc_step_cache_name, sim_step)
-    return body_link_lin_acc_w
+    cache_entry = cache[cache_key]
+    sim_step = env._sim_step_counter
+    if cache_entry["sim_step"] != sim_step:
+        body_link_lin_acc_w = (body_link_lin_vel_w - cache_entry["vel"]) / env.step_dt
+        body_link_lin_acc_w[env.episode_length_buf <= 1] = 0.0
+        cache_entry["sim_step"] = sim_step
+        cache_entry["vel"] = body_link_lin_vel_w.detach().clone()
+        cache_entry["acc"] = body_link_lin_acc_w
+
+    return cache_entry["acc"][:, asset_cfg.body_ids, :]
 
 
 def motors_power_square(
@@ -157,10 +136,9 @@ def motors_power_square(
     power_j = joint_applied_torque * asset.data.joint_vel  # (batch_size, num_joints)
     if normalize_by_stiffness:
         for target_ids, stiffness in _iter_joint_actuator_targets_and_stiffness(asset):
-            if torch.is_tensor(stiffness):
-                power_j[:, target_ids] /= stiffness.to(device=power_j.device, dtype=power_j.dtype)
-            else:
-                power_j[:, target_ids] /= float(stiffness)
+            power_j[:, target_ids] /= torch.as_tensor(
+                stiffness, device=power_j.device, dtype=power_j.dtype
+            )
     power_j = power_j[:, asset_cfg.joint_ids]  # (batch_size, num_selected_joints)
     power = torch.sum(torch.square(power_j), dim=-1)  # (batch_size,)
     if normalize_by_num_joints:
@@ -418,10 +396,9 @@ def joint_torques_l2(
 
     if normalize_by_stiffness:
         for target_ids, stiffness in _iter_joint_actuator_targets_and_stiffness(asset):
-            if torch.is_tensor(stiffness):
-                torques[:, target_ids] /= stiffness.to(device=torques.device, dtype=torques.dtype)
-            else:
-                torques[:, target_ids] /= float(stiffness)
+            torques[:, target_ids] /= torch.as_tensor(
+                stiffness, device=torques.device, dtype=torques.dtype
+            )
     torques = torques[:, asset_cfg.joint_ids]
 
     torques = torch.sum(torch.square(torques), dim=-1)
@@ -448,10 +425,9 @@ def joint_torques_gauss(
 
     if normalize_by_stiffness:
         for target_ids, stiffness in _iter_joint_actuator_targets_and_stiffness(asset):
-            if torch.is_tensor(stiffness):
-                torques[:, target_ids] /= stiffness.to(device=torques.device, dtype=torques.dtype)
-            else:
-                torques[:, target_ids] /= float(stiffness)
+            torques[:, target_ids] /= torch.as_tensor(
+                stiffness, device=torques.device, dtype=torques.dtype
+            )
     torques = torques[:, asset_cfg.joint_ids]
 
     if torlerance > 0:
@@ -856,10 +832,9 @@ def applied_torque_limits_gauss(
 
     if normalize_by_stiffness:
         for target_ids, stiffness in _iter_joint_actuator_targets_and_stiffness(asset):
-            if torch.is_tensor(stiffness):
-                out_of_limits[:, target_ids] /= stiffness.to(device=out_of_limits.device, dtype=out_of_limits.dtype)
-            else:
-                out_of_limits[:, target_ids] /= float(stiffness)
+            out_of_limits[:, target_ids] /= torch.as_tensor(
+                stiffness, device=out_of_limits.device, dtype=out_of_limits.dtype
+            )
     out_of_limits = out_of_limits[:, asset_cfg.joint_ids]  # (batch_size, num_selected_joints)
 
     out_of_limits_err = torch.square(out_of_limits)
@@ -892,10 +867,9 @@ def applied_torque_limits_square(
 
     if normalize_by_stiffness:
         for target_ids, stiffness in _iter_joint_actuator_targets_and_stiffness(asset):
-            if torch.is_tensor(stiffness):
-                out_of_limits[:, target_ids] /= stiffness.to(device=out_of_limits.device, dtype=out_of_limits.dtype)
-            else:
-                out_of_limits[:, target_ids] /= float(stiffness)
+            out_of_limits[:, target_ids] /= torch.as_tensor(
+                stiffness, device=out_of_limits.device, dtype=out_of_limits.dtype
+            )
     out_of_limits = out_of_limits[:, asset_cfg.joint_ids]  # (batch_size, num_selected_joints)
 
     out_of_limits_err = torch.sum(torch.square(out_of_limits), dim=-1)  # (batch_size,)

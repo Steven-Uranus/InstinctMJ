@@ -74,9 +74,8 @@ class _MjlabMarkerVisualizer:
         return list(range(num_items))
 
     @staticmethod
-    def _marker_color(marker_cfg, default=(0.0, 1.0, 1.0, 0.8)):
-        color = getattr(marker_cfg, "color", default)
-        return tuple(float(v) for v in color)
+    def _marker_color(marker_cfg):
+        return tuple(float(v) for v in marker_cfg.color)
 
     def visualize(
         self,
@@ -116,8 +115,6 @@ class _MjlabMarkerVisualizer:
             return
 
         if marker_name in ("point", "sphere"):
-            if not hasattr(marker_cfg, "radius"):
-                raise ValueError(f"Marker '{marker_name}' requires a 'radius' field.")
             base_radius = float(marker_cfg.radius)
             for idx in indices:
                 radius = base_radius * float(scales_t[idx, 0])
@@ -129,8 +126,6 @@ class _MjlabMarkerVisualizer:
             return
 
         if marker_name in ("patch", "cylinder"):
-            if not hasattr(marker_cfg, "radius") or not hasattr(marker_cfg, "height"):
-                raise ValueError(f"Marker '{marker_name}' requires both 'radius' and 'height' fields.")
             base_radius = float(marker_cfg.radius)
             base_height = float(marker_cfg.height)
             up_axis = torch.tensor([0.0, 0.0, 1.0], device=device, dtype=translations_t.dtype)
@@ -200,6 +195,7 @@ class ShadowingCommandBase(CommandTerm):
         self._motion_reference: MotionReferenceManager = env.scene[cfg.motion_reference.name]
         self._command: torch.Tensor = None  # override in the child class # type: ignore
         self._mask: torch.Tensor = None  # override in the child class # type: ignore
+        self._visualizer: _MjlabMarkerVisualizer | None = None
 
     @property
     def command(self) -> torch.Tensor:
@@ -341,6 +337,9 @@ class PoseRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )
+        self._vis_pose_ref_pos_w = torch.zeros((self.num_envs, 3), device=self.device)
+        self._vis_pose_ref_quat_w = torch.zeros((self.num_envs, 4), device=self.device)
+        self._vis_pose_ref_quat_w[:, 0] = 1.0
         self._update_command()
 
     @property
@@ -368,7 +367,7 @@ class PoseRefCommand(ShadowingCommandBase):
             env_ids = self._motion_reference_updated_env_ids
         if len(env_ids) > 0:
             self._update_command_by_env_ids(env_ids)
-        if getattr(self, "_visualizer", None) is not None:
+        if self._visualizer is not None:
             self._compute_debug_vis_data()
 
     def _update_command_by_env_ids(self, env_ids: Sequence[int] | torch.Tensor):
@@ -427,8 +426,6 @@ class PoseRefCommand(ShadowingCommandBase):
                 self._current_state[env_ids, :, 8] = 1
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_pose_ref_pos_w"):
-            return
         self._visualizer.visualize(
             translations=self._vis_pose_ref_pos_w,
             orientations=self._vis_pose_ref_quat_w,
@@ -617,6 +614,8 @@ class RotationRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )
+        self._vis_quat_reference_w = torch.zeros((self.num_envs, 4), device=self.device)
+        self._vis_quat_reference_w[:, 0] = 1.0
         self._update_command()
 
     @property
@@ -683,8 +682,6 @@ class RotationRefCommand(ShadowingCommandBase):
                 self._current_state[env_ids, :, :] = instinct_math_utils.quat_to_tan_norm(robot_quat_w).unsqueeze(1)
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_quat_reference_w"):
-            return
         self._visualizer.visualize(
             translations=self._env.scene[self.cfg.asset_cfg.name].data.root_link_pos_w,
             orientations=self._vis_quat_reference_w,
@@ -769,6 +766,8 @@ class ProjectedGravityRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )
+        self._roll_ref = torch.zeros(self._command.shape[0], device=self.device)
+        self._pitch_ref = torch.zeros(self._command.shape[0], device=self.device)
         self._update_command()
 
     @property
@@ -796,7 +795,7 @@ class ProjectedGravityRefCommand(ShadowingCommandBase):
             self._current_state[env_ids] = (
                 self._env.scene[self.cfg.asset_cfg.name].data.projected_gravity_b[env_ids].unsqueeze(1)
             )
-        if hasattr(self, "_visualizer"):
+        if self._visualizer is not None:
             _quat_ref = self._motion_reference.data.base_quat_w[
                 env_ids, self._motion_reference.aiming_frame_idx[env_ids]
             ]
@@ -806,16 +805,10 @@ class ProjectedGravityRefCommand(ShadowingCommandBase):
         _roll_ref, _pitch_ref = math_utils.euler_xyz_from_quat(_quat_ref)[:2]
         _roll_ref = math_utils.wrap_to_pi(_roll_ref)
         _pitch_ref = math_utils.wrap_to_pi(_pitch_ref)
-        if not hasattr(self, "_roll_ref"):
-            self._roll_ref = torch.zeros(self._command.shape[0], device=self.device)
-        if not hasattr(self, "_pitch_ref"):
-            self._pitch_ref = torch.zeros(self._command.shape[0], device=self.device)
         self._roll_ref[env_ids] = _roll_ref
         self._pitch_ref[env_ids] = _pitch_ref
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_roll_ref") or not hasattr(self, "_pitch_ref"):
-            return
         marker_pos_w = self._env.scene[self.cfg.asset_cfg.name].data.root_link_pos_w.clone()
         marker_pos_w[:, 2] += 1.2  # raise the position for visualization
         robot_quat_w = self._env.scene[self.cfg.asset_cfg.name].data.root_link_quat_w
@@ -871,6 +864,8 @@ class HeadingRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )
+        self._vis_heading_ref = torch.zeros((self.num_envs, 4), device=self.device)
+        self._vis_heading_ref[:, 0] = 1.0
         self.metrics["error_heading"] = torch.zeros(self.num_envs, device=self.device)
         self._update_command()
 
@@ -918,8 +913,6 @@ class HeadingRefCommand(ShadowingCommandBase):
             )
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_heading_ref"):
-            return
         base_pos_w = self._env.scene[self.cfg.asset_cfg.name].data.root_link_pos_w.clone()
         base_pos_w[:, 2] += 0.8
         scales = torch.ones_like(base_pos_w)  # scale for visualization
@@ -977,6 +970,8 @@ class HeadingErrorRefCommand(ShadowingCommandBase):
                 (self.num_envs, 1, 1),
                 device=self.device,
             )
+        self._vis_heading_ref = torch.zeros((self.num_envs, 4), device=self.device)
+        self._vis_heading_ref[:, 0] = 1.0
         self.metrics["error_heading"] = torch.zeros(self.num_envs, device=self.device)
         self._update_command()
 
@@ -1012,8 +1007,6 @@ class HeadingErrorRefCommand(ShadowingCommandBase):
         self._command[env_ids] *= self._mask[env_ids]
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_heading_ref"):
-            return
         base_pos_w = self._env.scene[self.cfg.asset_cfg.name].data.root_link_pos_w.clone()
         base_pos_w[:, 2] += 0.8
         scales = torch.ones_like(base_pos_w)  # scale for visualization
@@ -1075,6 +1068,7 @@ class BaseHeightRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )
+        self._vis_marker_pos_w = torch.zeros((self.num_envs, 3), device=self.device)
         self._update_command()
 
     @property
@@ -1101,8 +1095,6 @@ class BaseHeightRefCommand(ShadowingCommandBase):
             )
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_marker_pos_w"):
-            return
         self._visualizer.visualize(
             translations=self._vis_marker_pos_w,
         )
@@ -1415,6 +1407,10 @@ class LinkRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )  # (num_envs, 1, num_links, 2) # (position mask, rotation mask)
+        num_vis_links = self.num_envs * self._motion_reference.num_link_to_ref
+        self._vis_link_pos_w = torch.zeros((num_vis_links, 3), device=self.device)
+        self._vis_link_quat_w = torch.zeros((num_vis_links, 4), device=self.device)
+        self._vis_link_quat_w[:, 0] = 1.0
         self._update_command()
 
     @property
@@ -1501,8 +1497,6 @@ class LinkRefCommand(ShadowingCommandBase):
                 ).unsqueeze(1)
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_link_pos_w"):
-            return
         self._visualizer.visualize(
             translations=self._vis_link_pos_w,
             orientations=self._vis_link_quat_w,
@@ -1591,6 +1585,8 @@ class LinkPosRefCommand(ShadowingCommandBase):
                 device=self.device,
                 dtype=torch.bool,
             )  # (num_envs, 1, num_links, 1) # (position mask)
+        num_vis_links = self.num_envs * self._motion_reference.num_link_to_ref
+        self._vis_link_pos_w = torch.zeros((num_vis_links, 3), device=self.device)
         self._update_command()
 
     @property
@@ -1623,8 +1619,6 @@ class LinkPosRefCommand(ShadowingCommandBase):
             ).unsqueeze(1)
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_link_pos_w"):
-            return
         self._visualizer.visualize(
             translations=self._vis_link_pos_w,
         )
@@ -1744,6 +1738,11 @@ class LinkPosErrRefCommand(LinkPosRefCommand):
 
     def __init__(self, cfg: LinkPosErrRefCommandCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
+        num_vis_links = self.num_envs * self._motion_reference.num_link_to_ref
+        self._vis_err_pos = torch.zeros((num_vis_links, 3), device=self.device)
+        self._vis_err_quat = torch.zeros((num_vis_links, 4), device=self.device)
+        self._vis_err_quat[:, 0] = 1.0
+        self._vis_err_scale = torch.ones((num_vis_links, 3), device=self.device)
 
     def _update_command_by_env_ids(self, env_ids: Sequence[int] | torch.Tensor):
         link_pos_w = self._env.scene[self.cfg.asset_cfg.name].data.body_link_pos_w[:, self._body_ids]
@@ -1762,8 +1761,6 @@ class LinkPosErrRefCommand(LinkPosRefCommand):
         self._command[env_ids] *= self._mask[env_ids].unsqueeze(-1)
 
     def _debug_vis_callback(self, event):
-        if not hasattr(self, "_vis_err_pos"):
-            return
         # visualize the error direction
         self._visualizer.visualize(
             translations=self._vis_err_pos,

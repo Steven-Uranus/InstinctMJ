@@ -26,9 +26,6 @@ def register_virtual_obstacle_to_sensor(
 
     for sensor_cfg in sensor_cfgs:
         sensor = env.scene[sensor_cfg.name]
-        if not hasattr(sensor, "register_virtual_obstacles"):
-            raise ValueError(f"Sensor {sensor_cfg.name} does not support virtual obstacles.")
-
         sensor.register_virtual_obstacles(virtual_obstacles)
 
     if enable_debug_vis:

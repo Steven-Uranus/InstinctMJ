@@ -34,6 +34,7 @@ class InstinctRlEnv(ManagerBasedRlEnv):
     if self.cfg.seed is not None:
       self.cfg.seed = self.seed(self.cfg.seed)
     self._sim_step_counter = 0
+    self._instinct_body_lin_acc_cache: dict[str, dict[str, object]] = {}
     self.extras = {}
     self.obs_buf = {}
 

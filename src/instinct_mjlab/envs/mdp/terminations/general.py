@@ -125,9 +125,8 @@ class illegal_reset_contact(ManagerTermBase):
     def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRLEnv):
         super().__init__(env)
         self.threshold = cfg.params["threshold"]
-        self.sensor_cfg = cfg.params.get("sensor_cfg", None)
-        self.sensor_name = cfg.params.get("sensor_name", None)
-        self.asset_cfg = cfg.params.get("asset_cfg", None)
+        self.sensor_name = cfg.params["sensor_name"]
+        self.asset_cfg = cfg.params["asset_cfg"]
         self.print_reason = cfg.params.get("print_reason", False)
         self.episode_length_threshold = cfg.params.get("episode_length_threshold", 1)
         self.illegal_contact_counter = torch.zeros(env.num_envs, device=env.device, dtype=torch.int)
@@ -136,26 +135,18 @@ class illegal_reset_contact(ManagerTermBase):
         self,
         env: ManagerBasedRLEnv,
         threshold: float,
-        sensor_cfg: SceneEntityCfg | None = None,
-        sensor_name: str | None = None,
-        asset_cfg: SceneEntityCfg | None = None,
+        sensor_name: str,
+        asset_cfg: SceneEntityCfg,
         print_reason: bool = False,
         episode_length_threshold: int = 1,
     ) -> torch.Tensor:
         """Timeout if the robot is reset with some undesired penetration with the environment.
         within the first episode_length_threshold steps.
         """
-        if sensor_name is not None:
-            contact_sensor: ContactSensor = env.scene.sensors[sensor_name]
-            force_mag = torch.max(torch.norm(contact_sensor.data.force_history, dim=-1), dim=-1)[0]  # [B, N]
-            if asset_cfg is not None:
-                force_mag = force_mag[:, asset_cfg.body_ids]
-            contacts = torch.any(force_mag > threshold, dim=1)
-        else:
-            contact_sensor = env.scene.sensors[sensor_cfg.name]
-            force_mag = torch.max(torch.norm(contact_sensor.data.force_history, dim=-1), dim=-1)[0]  # [B, N]
-            force_mag = force_mag[:, sensor_cfg.body_ids]
-            contacts = torch.any(force_mag > threshold, dim=1)
+        contact_sensor: ContactSensor = env.scene.sensors[sensor_name]
+        force_mag = torch.max(torch.norm(contact_sensor.data.force_history, dim=-1), dim=-1)[0]  # [B, N]
+        force_mag = force_mag[:, asset_cfg.body_ids]
+        contacts = torch.any(force_mag > threshold, dim=1)
         self.illegal_contact_counter += contacts.int()
         return_ = torch.logical_and(
             self.illegal_contact_counter >= episode_length_threshold,

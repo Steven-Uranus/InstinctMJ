@@ -22,7 +22,7 @@ def reference_progress(
     """
     motion_reference: MotionReferenceManager = env.scene[asset_cfg.name]
     motion_length = motion_reference.complete_motion_lengths
-    timestamp = env.episode_length_buf if hasattr(env, "episode_length_buf") else torch.zeros_like(motion_length)
+    timestamp = env.episode_length_buf
     timestamp *= env.step_dt
     # (num_envs, 1)
     return (timestamp / motion_length).unsqueeze(-1)
@@ -89,7 +89,7 @@ def motion_reference_mask(
             an all-trues mask.
     """
     motion_reference: MotionReferenceManager = env.scene[asset_cfg.name]
-    return_ = getattr(motion_reference.data, data_name).to(torch.float32)  # (num_envs, num_frames, D)
+    return_ = motion_reference.data.__getattribute__(data_name).to(torch.float32)  # (num_envs, num_frames, D)
     if current_state_mask_at_last:
         return_ = torch.cat(
             [

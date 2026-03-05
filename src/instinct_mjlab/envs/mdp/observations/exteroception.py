@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
 import torch
 from typing import TYPE_CHECKING, Literal
 
@@ -8,21 +7,7 @@ import cv2
 
 from mjlab.utils.lab_api import math as math_utils
 from mjlab.managers import ManagerTermBase, ManagerTermBaseCfg, SceneEntityCfg
-
-def _randomize_prop_by_op(
-    data: torch.Tensor,
-    distribution_parameters: tuple[int, int],
-    *_,
-    distribution: Literal["uniform", "log_uniform"] = "uniform",
-    **__,
-) -> torch.Tensor:
-    low, high = distribution_parameters
-    if distribution == "log_uniform":
-        log_low = float(np.log(max(low, 1)))
-        log_high = float(np.log(max(high + 1, 1)))
-        sampled = torch.exp(torch.rand(data.shape, device=data.device) * (log_high - log_low) + log_low)
-        return torch.floor(sampled).to(data.dtype)
-    return torch.randint(low, high + 1, data.shape, device=data.device, dtype=torch.int64).to(data.dtype)
+from instinct_mjlab.envs.mdp.events.randomization import _randomize_prop_by_op
 
 if TYPE_CHECKING:
     from mjlab.envs import ManagerBasedRlEnv as ManagerBasedEnv
@@ -35,18 +20,10 @@ if TYPE_CHECKING:
     from instinct_mjlab.sensors.noisy_camera import NoisyGroupedRayCasterCamera
 
 
-_CV2_GUI_AVAILABLE = True
-for _line in cv2.getBuildInformation().splitlines():
-    if _line.strip().startswith("GUI:"):
-        _CV2_GUI_AVAILABLE = "NONE" not in _line.upper()
-        break
-
-
 def _debug_visualize_image(
     image: torch.Tensor,
     scale_up_vis: int = 5,
     window_name: str = "vis_image",
-    invert: bool = False,
 ) -> None:
     """Visualize images in a cv2 window for debugging purposes.
 
@@ -58,21 +35,11 @@ def _debug_visualize_image(
         scale_up_vis: The factor to scale up the image for better visualization if the
             resolution is too low. Defaults to 5.
         window_name: The name of the OpenCV window. Defaults to "vis_image".
-        invert: Whether to invert the image (e.g. for depth: close=bright, far=dark).
-            Defaults to False.
     """
-    if not _CV2_GUI_AVAILABLE:
-        return
-    img_tensor = image.float()
-    img_max = img_tensor.max()
     # automatically normalize images to [0, 255]
-    if img_max > 0:
-        img_tensor = img_tensor * 255.0 / img_max
-    if invert:
-        img_tensor = 255.0 - img_tensor
-    img = img_tensor.cpu().numpy().astype("uint8")  # (H, W)
+    img = (image * 255.0 / image.max()).cpu().numpy().astype("uint8")  # (H, W)
     # Scale up the image for better visualization
-    img = cv2.resize(img, (img.shape[1] * scale_up_vis, img.shape[0] * scale_up_vis), interpolation=cv2.INTER_NEAREST)
+    img = cv2.resize(img, (img.shape[1] * scale_up_vis, img.shape[0] * scale_up_vis), interpolation=cv2.INTER_AREA)
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     cv2.imshow(window_name, img)
     cv2.waitKey(1)
@@ -118,7 +85,7 @@ def visualizable_image(
     )
 
     # obtain the input image
-    images = sensor.data.output[data_type]  # (N, H, W, C) or (N, history, H, W, C)
+    images = sensor.data.output[data_type].clone()  # (N, H, W, C) or (N, history, H, W, C)
     if "history" in data_type:
         # NOTE: Only depth-related data types with history are supported. where C = 1.
         images = images.squeeze(
@@ -231,7 +198,7 @@ class delayed_visualizable_image(ManagerTermBase):
         Get the delayed frames from the sensor data.
         """
         # obtain the input image
-        images = self.sensor.data.output[self.data_type]  # (N, history, H, W, C)
+        images = self.sensor.data.output[self.data_type].clone()  # (N, history, H, W, C)
         # NOTE: Only depth-related data types with history are supported for now. where C = 1.
         images = images.squeeze(
             -1
