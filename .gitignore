@@ -2,6 +2,10 @@
 logs/
 log/
 *.log
+
+# Build metadata
+*.egg-info/
+
 .venv/
 .vscode/
 .pytest_cache/
