@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "instinct-mj"
 version = "0.1.0"
-description = "mjlab-native port of InstinctLab tasks for humanoid RL with instinct_rl."
+description = "mjlab-native port of InstinctLab for humanoid RL and instinct_rl workflows."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10,<3.14"

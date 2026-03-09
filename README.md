@@ -6,8 +6,11 @@
 [![Platform](https://img.shields.io/badge/platform-linux--x86__64-orange.svg)](https://releases.ubuntu.com/)
 [![instinct_rl](https://img.shields.io/badge/training-instinct__rl-brightgreen.svg)](https://github.com/project-instinct/instinct_rl)
 
-`InstinctMJ` builds InstinctLab task families on top of `mjlab`, which combines Isaac Lab's manager-based API with MuJoCo Warp, a GPU-accelerated version of MuJoCo.
-The package focuses on behavior-preserving task migration, expressed in native `mjlab` managers, scenes, and task registration for `instinct_rl`.
+## Overview
+
+This repository is the `mjlab-native port` of [InstinctLab](https://github.com/project-instinct/InstinctLab), serving as the environment side of [Project-Instinct](https://project-instinct.github.io/).
+
+We aim to industrialize Reinforcement Learning for humanoid whole-body control, with task families implemented on top of `mjlab` and integrated into the Project-Instinct training workflow.
 
 **Key Features:**
 
