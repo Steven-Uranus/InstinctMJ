@@ -191,11 +191,11 @@ class PerceptiveShadowingSceneCfg(InteractiveSceneCfg):
                         collision_coacd=True,
                         # Use CoACD hulls directly as rendered terrain mesh (instead of source STL mesh).
                         collision_coacd_visualize_collision_hulls=True,
-                        collision_coacd_threshold=0.04,
+                        collision_coacd_threshold=0.01,
                         # Keep hull geometry detailed to avoid blocky/disconnected visual artifacts.
                         collision_coacd_decimate=False,
-                        collision_coacd_max_ch_vertex=256,
-                        collision_coacd_resolution=3000,
+                        collision_coacd_max_ch_vertex=512,
+                        collision_coacd_resolution=9000,
                         # Keep stable runtime/caching behavior.
                         collision_coacd_log_level="off",
                         collision_coacd_use_disk_cache=True,

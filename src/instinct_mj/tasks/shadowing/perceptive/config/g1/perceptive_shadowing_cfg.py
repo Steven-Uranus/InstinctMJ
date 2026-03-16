@@ -28,8 +28,13 @@ from instinct_mj.motion_reference.utils import motion_interpolate_bilinear
 
 G1_CFG = G1_29DOF_TORSOBASE_POPSICLE_CFG
 
-# NOTE: Change this to your local perceptive shadowing dataset folder.
-MOTION_FOLDER = "~/Xyk/Datasets/20251116_50cm_kneeClimbStep1"
+# NOTE: Default perceptive shadowing dataset on this machine.
+# You can override this without editing code by setting:
+#   INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/dataset_root
+MOTION_FOLDER = os.environ.get(
+    "INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER",
+    "/home/lxj/instinct/instinct/Instinct/data/20251116_50cm_kneeClimbStep1",
+)
 
 
 @dataclass(kw_only=True)
@@ -263,9 +268,9 @@ class G1PerceptiveShadowingEnvCfg_PLAY(G1PerceptiveShadowingEnvCfg):
         self.terminations["base_pg_too_far"] = None
         self.terminations["link_pos_too_far"] = None
 
-        # put the reference in scene and move the robot elsewhere and visualize the reference
-        # self.events.reset_robot.params["position_offset"] = [0.0, 1.0, 2.0]
-        # self.scene.motion_reference.visualizing_robot_offset = (0.0, 0.0, 0.0)
+        # Keep the robot and reference sequence starting at the same place.
+        self.events["reset_robot"].params["position_offset"] = [0.0, 0.8, 0.0]
+        motion_reference_cfg.visualizing_robot_offset = (0.0, 0.8, 0.0)
         # self.viewer.entity_name = "robot_reference"
 
         # remove some randomizations
