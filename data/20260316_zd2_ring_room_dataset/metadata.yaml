@@ -1,0 +1,6 @@
+motion_files:
+- motion_file: zd2_ring_room/zd-2-retargeted.npz
+  terrain_id: 0
+terrains:
+- terrain_file: zd2_ring_room/zd2_ring_room.stl
+  terrain_id: 0
