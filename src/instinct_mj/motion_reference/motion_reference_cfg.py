@@ -145,8 +145,10 @@ class MotionReferenceManagerCfg(SensorCfg):
     """List of marker types to visualize.
     ## Available options:
         - 'root' for root transform
-        - 'links' for link transforms
-        - 'relative_links' for relative link transforms
+        - 'links' for world-frame link transforms from the motion file
+        - 'relative_links' for robot-relative link transforms used by some rewards/debugging.
+          NOTE: `relative_links` are re-anchored to the robot's current x-y position / heading and are
+          intentionally not the same as the raw world-frame motion.
     """
 
     visualizing_robot_offset: Sequence[float] = (0.0, 0.0, 0.0)

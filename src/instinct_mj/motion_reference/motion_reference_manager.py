@@ -1080,7 +1080,7 @@ class MotionReferenceManager(Sensor):
         elif self.cfg.visualizing_robot_from == "reference_frame":
             robot_pos_w = self.reference_frame.base_pos_w[self.ALL_INDICES, 0].clone()
             robot_quat_w = self.reference_frame.base_quat_w[self.ALL_INDICES, 0]
-            robot_joint_pos = self.data.joint_pos[self.ALL_INDICES, 0]
+            robot_joint_pos = self.reference_frame.joint_pos[self.ALL_INDICES, 0]
         else:
             raise ValueError(f"Unsupported cfg.visualizing_robot_from: {self.cfg.visualizing_robot_from}")
 
