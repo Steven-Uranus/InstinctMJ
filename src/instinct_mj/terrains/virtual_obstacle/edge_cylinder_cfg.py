@@ -112,7 +112,7 @@ class GreedyconcatEdgeCylinderCfg(EdgeCylinderCfg):
     merge_collinear_gap: float = 0.0
     """Max endpoint gap (meters) allowed when post-merging collinear segments.
 
-    Set to 0 to disable the post-merge stage and keep legacy behavior.
+    Set to 0 to disable the post-merge stage and keep the previous behavior.
     """
 
     merge_collinear_angle_threshold: float = 25.0
@@ -136,7 +136,7 @@ class GreedyconcatEdgeCylinderCfg(EdgeCylinderCfg):
     component_workers: int = 1
     """Worker count for disconnected edge-component processing.
 
-    Set to ``1`` to keep single-worker legacy behavior.
+    Set to ``1`` to keep the previous single-worker behavior.
     Set to ``0`` to auto-use available CPU cores.
     """
 

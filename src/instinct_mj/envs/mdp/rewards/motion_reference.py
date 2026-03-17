@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import torch
-from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
+from mjlab.envs import ManagerBasedRlEnv
 from mjlab.managers import ManagerTermBase, RewardTermCfg, SceneEntityCfg
 from mjlab.utils.lab_api import math as math_utils
 
@@ -21,7 +21,7 @@ Reward functions
 
 
 def base_position_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -65,7 +65,7 @@ def base_position_tracking_gauss(
 
 
 def base_position_tracking_neg_log(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -103,7 +103,7 @@ def base_position_tracking_neg_log(
 
 
 def base_position_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     std: float = 0.1,
@@ -128,7 +128,7 @@ class base_position_offset_imitation_gauss(ManagerTermBase):
         reference_cfg: The configuration for the scene entity. Default is "motion_reference".
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
 
         self.asset_cfg = self.cfg.params.get("asset_cfg", SceneEntityCfg("robot"))
@@ -146,7 +146,7 @@ class base_position_offset_imitation_gauss(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
         std: float = 0.1,
@@ -200,7 +200,7 @@ class base_position_offset_imitation_square(base_position_offset_imitation_gauss
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
         std: float = 0.1,
@@ -215,7 +215,7 @@ class base_position_offset_imitation_square(base_position_offset_imitation_gauss
 
 
 def base_velocity_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     std: float = 0.5,
@@ -249,7 +249,7 @@ def base_velocity_imitation_gauss(
 
 
 def base_velocity_imitation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -280,7 +280,7 @@ def base_velocity_imitation_square(
 
 
 def base_rot_tracking_cos(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -312,7 +312,7 @@ def base_rot_tracking_cos(
 
 
 def base_rot_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -346,7 +346,7 @@ def base_rot_tracking_gauss(
 
 
 def base_rot_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     difference_type: Literal["axis_angle", "box_minus"] = "axis_angle",
@@ -379,7 +379,7 @@ def base_rot_imitation_gauss(
 
 
 def base_rot_imitation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     difference_type: Literal["axis_angle", "box_minus"] = "axis_angle",
@@ -409,7 +409,7 @@ def base_rot_imitation_square(
 
 
 def base_projected_gravity_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -460,7 +460,7 @@ def base_projected_gravity_tracking_gauss(
 
 
 def joint_pos_tracking_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -482,7 +482,7 @@ def joint_pos_tracking_square(
 
 
 def joint_pos_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     check_at_keyframe_threshold: float = -1,
@@ -542,12 +542,12 @@ def joint_pos_tracking_gauss(
 class joint_pos_tracking_gauss_normalized(ManagerTermBase):
     """joint_pos_tracking with gauss kernel, the sigma is computed dynamically for each joints across all samples."""
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
         check_at_keyframe_threshold: float = -1,
@@ -588,7 +588,7 @@ class joint_pos_tracking_gauss_normalized(ManagerTermBase):
 
 
 def joint_pos_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     std: float = 0.7,
@@ -635,7 +635,7 @@ def joint_pos_imitation_gauss(
 
 
 def joint_pos_imitation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     masked: bool = False,
@@ -664,7 +664,7 @@ def joint_pos_imitation_square(
 
 
 def joint_vel_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     std: float = 10.0,
@@ -710,7 +710,7 @@ def joint_vel_imitation_gauss(
 
 
 def joint_vel_imitation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     masked: bool = False,
@@ -739,7 +739,7 @@ def joint_vel_imitation_square(
 
 
 def link_pos_tracking_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -768,7 +768,7 @@ def link_pos_tracking_square(
 
 
 def link_pos_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -833,7 +833,7 @@ def link_pos_tracking_gauss(
 
 
 def link_rot_tracking_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -882,7 +882,7 @@ def link_rot_tracking_gauss(
 
 
 def link_pos_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -954,7 +954,7 @@ def link_pos_imitation_gauss(
 
 
 def link_pos_imitation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -999,7 +999,7 @@ def link_pos_imitation_square(
 
 
 def link_pos_imitation_neg_log(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -1040,7 +1040,7 @@ def link_pos_imitation_neg_log(
 
 
 def link_rot_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = True,
@@ -1109,7 +1109,7 @@ def link_rot_imitation_gauss(
 
 
 def link_lin_vel_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = False,
@@ -1178,7 +1178,7 @@ def link_lin_vel_imitation_gauss(
 
 
 def link_ang_vel_imitation_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     in_base_frame: bool = False,

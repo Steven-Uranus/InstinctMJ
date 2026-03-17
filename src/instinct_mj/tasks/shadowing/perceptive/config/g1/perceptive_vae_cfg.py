@@ -36,12 +36,11 @@ from instinct_mj.motion_reference.utils import motion_interpolate_bilinear
 
 G1_CFG = G1_29DOF_TORSOBASE_POPSICLE_CFG
 
-# NOTE: Default perceptive VAE dataset on this machine.
-# You can override this without editing code by setting:
-#   INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/dataset_root
-MOTION_FOLDER = os.environ.get(
-    "INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER",
-    "/home/lxj/instinct/instinct/Instinct/data/20251116_50cm_kneeClimbStep1",
+# NOTE: Change this to your local perceptive VAE dataset folder.
+# The folder should contain the motion files and a `metadata.yaml`.
+MOTION_FOLDER = (
+    "~/your/path/to/20251116_50cm_kneeClimbStep1"
+    # "~/your/path/to/20251116_50cm_kneeClimbStep1/20251106_diveroll4_roadRamp_noWall"
 )
 
 
@@ -99,10 +98,11 @@ motion_reference_cfg = MotionReferenceManagerCfg(
     update_period=0.02,
     num_frames=10,
     data_start_from="current_time",
-    # Keep debug visualization in the raw motion/terrain frame by default.
-    visualizing_robot_offset=(0.0, 0.0, 0.0),
-    visualizing_robot_from="aiming_frame",
-    visualizing_marker_types=["links"],
+    # set the robot_reference directly at where they are in the scene
+    # DO NOT FORGET to change this when in actual training
+    visualizing_robot_offset=(2.0, 0.0, 0.0),
+    visualizing_robot_from="reference_frame",
+    visualizing_marker_types=["relative_links", "links"],
     motion_buffers={
         "TerrainMotion": TerrainMotionCfg(),
     },
@@ -111,7 +111,6 @@ motion_reference_cfg = MotionReferenceManagerCfg(
 motion_reference_cfg_play = deepcopy(motion_reference_cfg)
 motion_reference_cfg_play.debug_vis = True
 motion_reference_cfg_play.reference_entity_name = "robot_reference"
-motion_reference_cfg_play.visualizing_robot_from = "aiming_frame"
 
 
 def make_vae_observations() -> dict[str, ObsGroupCfg]:

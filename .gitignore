@@ -5,8 +5,11 @@ log/
 
 # Build metadata
 *.egg-info/
+instinct_mj.egg-info/
 
+.github/
 .venv/
+venv/
 .vscode/
 .pytest_cache/
 # Python cache files

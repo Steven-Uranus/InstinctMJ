@@ -160,6 +160,18 @@ Export ONNX for parkour:
 instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 --load-run <run_name> --export-onnx
 ```
 
+Play parkour with released weights:
+
+```bash
+instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 \
+  --load-run <downloaded_run_dir> \
+  --checkpoint-file <checkpoint_file>
+```
+
+Parkour pretrained weights:
+
+- Google Drive: [Parkour pretrained weights](https://drive.google.com/drive/folders/1B2AP5MEC5hDF7w5ws9oIiRKStL_gRxhE?usp=drive_link)
+
 Before training or playing parkour tasks, update the local dataset root in
 `src/instinct_mj/tasks/parkour/config/g1/g1_parkour_target_amp_cfg.py`:
 
@@ -233,23 +245,3 @@ register_instinct_task(
     instinct_rl_cfg_factory=my_instinct_rl_cfg,
 )
 ```
-
-## Repository Layout
-
-- `src/instinct_mj/tasks` — task registration and family-specific configs
-- `src/instinct_mj/envs` — environment wrappers, manager extensions, and shared MDP terms
-- `src/instinct_mj/motion_reference` — motion data loaders, buffers, and reference managers
-- `src/instinct_mj/assets` — MuJoCo robot assets and resource files
-- `src/instinct_mj/scripts` — train, play, visualization, and data-processing entry points
-
-## Data and Outputs
-
-- Training logs are written to `logs/instinct_rl/<experiment_name>/<timestamp_run>/`
-- Play videos are saved under `videos/play/` in the selected run directory
-
-## Related Projects
-
-Other repositories in the Project-Instinct ecosystem:
-
-- `InstinctLab`: `https://github.com/project-instinct/InstinctLab`
-- `instinct_rl`: `https://github.com/project-instinct/instinct_rl`

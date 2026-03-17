@@ -30,7 +30,7 @@ def _perceptive_depth_encoder_cfg() -> dict[str, dict]:
 
 
 def g1_perceptive_shadowing_instinct_rl_cfg() -> InstinctRlOnPolicyRunnerCfg:
-    # Match historical perceptive shadowing checkpoints (EncoderActorCritic + depth encoder).
+    # Use EncoderActorCritic with the depth encoder.
     return InstinctRlOnPolicyRunnerCfg(
         policy=InstinctRlActorCriticCfg(
             class_name="EncoderActorCritic",

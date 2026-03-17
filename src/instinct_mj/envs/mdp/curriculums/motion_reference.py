@@ -9,9 +9,9 @@ from mjlab.managers import ManagerTermBase
 from instinct_mj.utils.torch import ConcatBatchTensor
 
 if TYPE_CHECKING:
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.managers import CurriculumTermCfg
 
-    from instinct_mj.envs import ManagerBasedRLEnv
     from instinct_mj.motion_reference import MotionReferenceManager
     from instinct_mj.motion_reference.motion_files.amass_motion import AmassMotion
 
@@ -23,7 +23,7 @@ class BeyondMimicAdaptiveWeighting(ManagerTermBase):
     - https://github.com/HybridRobotics/whole_body_tracking/blob/dcecabd8c24c68f59d143fdf8e3a670f420c972d/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/commands.py#L207
     """
 
-    def __init__(self, cfg: CurriculumTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: CurriculumTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self._cfg = cfg
 
@@ -67,7 +67,7 @@ class BeyondMimicAdaptiveWeighting(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         env_ids: Sequence[int],
         adaptive_uniform_ratio: float = 0.1,
         adaptive_kernel_size: int = 3,
@@ -197,7 +197,7 @@ class BeyondConcatMotionAdaptiveWeighting(BeyondMimicAdaptiveWeighting):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         env_ids: Sequence[int],
         adaptive_uniform_ratio: float = 0.1,
         adaptive_kernel_size: int = 3,

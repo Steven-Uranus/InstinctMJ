@@ -224,8 +224,7 @@ ROUGH_TERRAINS_CFG = FiledTerrainGeneratorCfg(
                 ),
             },
         ),
-        # Keep key name for command-range compatibility, but use pure hfield generation.
-        "mesh_boxes": PerlinDiscreteObstaclesTerrainCfg(
+        "dense_boxes": PerlinDiscreteObstaclesTerrainCfg(
             proportion=0.10,
             num_obstacles=120,
             obstacle_height_mode="fixed",

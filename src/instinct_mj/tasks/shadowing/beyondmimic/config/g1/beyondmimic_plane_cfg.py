@@ -17,7 +17,7 @@ from mjlab.managers import (
 )
 from mjlab.scene import SceneCfg
 from mjlab.sensor import ContactMatch, ContactSensorCfg
-from mjlab.terrains import TerrainImporterCfg
+from mjlab.terrains import TerrainEntityCfg
 from mjlab.utils.noise import UniformNoiseCfg
 from mjlab.utils.spec_config import CollisionCfg
 from mjlab.viewer.viewer_config import ViewerConfig
@@ -47,10 +47,9 @@ G1_CFG = G1_29DOF_TORSOBASE_POPSICLE_CFG
 # Motion configuration
 # NOTE: Change `MOTION_NAME`, `_hacked_selected_file_`, and the dataset path below
 # to your local motion setup before training / play.
-MOTION_NAME = "LafanKungfu1"
-_hacked_selected_file_ = "fightAndSports1_subject1_retargetted.npz"
-MOTION_NAME = "LafanSprint1"
-_hacked_selected_file_ = "sprint1_subject2_retargetted.npz"
+# Keep `_hacked_selected_file_` relative to the dataset root configured in `path`.
+MOTION_NAME = "LafanWalk1"
+_hacked_selected_file_ = "walk1_subject1_retargeted.npz"
 
 with open(f"/tmp/{MOTION_NAME}.yaml", "w") as f:
     yaml.dump(
@@ -93,8 +92,9 @@ motion_reference_cfg = MotionReferenceManagerCfg(
     visualizing_robot_from="reference_frame",
     motion_buffers={
         MOTION_NAME: AmassMotionCfgBase(
-            # NOTE: Change this to your local BeyondMimic motion dataset root.
-            path=os.path.expanduser("~/Xyk/Datasets/UbisoftLAFAN1_GMR_g1_29dof_torsoBase_retargetted_instinctnpz"),
+            # NOTE: Replace this with your local BeyondMimic motion dataset root.
+            # Example: os.path.expanduser("~/your/path/to/lafan1_gmr_unitree_g1_instinct")
+            path=os.path.expanduser("~/your/path/to/lafan1_gmr_unitree_g1_instinct"),
             retargetting_func=None,
             filtered_motion_selection_filepath=f"/tmp/{MOTION_NAME}.yaml",
             motion_start_from_middle_range=[0.0, 0.8],
@@ -528,7 +528,7 @@ def g1_beyondmimic_plane_env_cfg(*, play: bool = False) -> ManagerBasedRlEnvCfg:
     scene = beyondmimic_cfg.BeyondMimicSceneCfg(
         num_envs=1 if play else 4096,
         env_spacing=2.5 if play else 4.0,
-        terrain=TerrainImporterCfg(terrain_type="plane"),
+        terrain=TerrainEntityCfg(terrain_type="plane"),
         entities=entities,
         sensors=(
             ContactSensorCfg(
@@ -665,13 +665,13 @@ def g1_beyondmimic_plane_env_cfg(*, play: bool = False) -> ManagerBasedRlEnvCfg:
 
 
 def G1BeyondMimicPlaneEnvCfg() -> ManagerBasedRlEnvCfg:
-    """Compatibility callable that returns the train env config."""
+    """Return the train env config."""
 
     return g1_beyondmimic_plane_env_cfg(play=False)
 
 
 def G1BeyondMimicPlaneEnvCfg_PLAY() -> ManagerBasedRlEnvCfg:
-    """Compatibility callable that returns the play env config."""
+    """Return the play env config."""
 
     return g1_beyondmimic_plane_env_cfg(play=True)
 

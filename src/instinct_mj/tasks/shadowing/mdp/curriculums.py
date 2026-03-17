@@ -7,7 +7,7 @@ import torch
 from mjlab.managers.manager_base import ManagerTermBase
 
 if TYPE_CHECKING:
-    from mjlab.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.managers import CurriculumTermCfg
     from mjlab.motion_reference.motion_files.amass_motion import AmassMotion
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def update_motion_reference_weight(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     env_ids: Sequence[int],
     reference_name: str = "motion_reference",
     success_weight_ratio: float = 0.6,
@@ -41,7 +41,7 @@ def update_motion_reference_weight(
 
 
 def update_motion_reference_weights_by_progress(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     env_ids: Sequence[int],
     reference_name: str = "motion_reference",
 ) -> dict[str, float] | None:
@@ -76,7 +76,7 @@ class update_motion_reference_weights_by_delayed_stats(ManagerTermBase):
     such as progress, shadowing error ...
     """
 
-    def __init__(self, cfg: CurriculumTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: CurriculumTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.delayed_progress = cfg.params.get("init_delayed_progress", 0.0)
         self.experience_length = cfg.params.get("init_experience_length", 0.0)
@@ -84,7 +84,7 @@ class update_motion_reference_weights_by_delayed_stats(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         env_ids: Sequence[int],
         reference_name: str = "motion_reference",
         progress_refresh_epsilon: float = 0.01,
@@ -133,7 +133,7 @@ class update_motion_reference_weights_by_delayed_stats(ManagerTermBase):
 
 
 def update_motion_reference_weights_by_experience(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     env_ids: Sequence[int],
     reference_name: str = "motion_reference",
     success_weight_ratio: float = 1.0,

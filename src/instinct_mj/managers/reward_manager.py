@@ -10,7 +10,7 @@ from mjlab.managers import ManagerTermBase, RewardManager, RewardTermCfg
 from prettytable import PrettyTable
 
 if TYPE_CHECKING:
-    from instinct_mj.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
 
     from .manager_term_cfg import MultiRewardCfg
 
@@ -25,7 +25,7 @@ class MultiRewardManager(RewardManager):
     be in shape (num_envs, num_groups) where each column corresponds to the total reward.
     """
 
-    def __init__(self, cfg: MultiRewardCfg, env: ManagerBasedRLEnv, *, scale_by_dt: bool = True):
+    def __init__(self, cfg: MultiRewardCfg, env: ManagerBasedRlEnv, *, scale_by_dt: bool = True):
         """Initialize the reward manager.
 
         Args:

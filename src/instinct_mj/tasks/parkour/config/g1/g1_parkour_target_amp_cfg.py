@@ -70,9 +70,10 @@ from instinct_mj.utils.noise import CropAndResizeCfg, DepthNormalizationCfg, Gau
 
 __file_dir__ = os.path.dirname(os.path.realpath(__file__))
 # NOTE: Change this to your local parkour dataset root before training / play.
+# Keep `filtered_motion_selection_filepath` under this directory unless you point it elsewhere.
 # Example:
-# _PARKOUR_DATASET_DIR = os.path.expanduser("~/Xyk/Datasets/data&model/parkour_motion_reference")
-_PARKOUR_DATASET_DIR = os.path.expanduser("~/Xyk/Datasets/data&model/parkour_motion_reference")
+# _PARKOUR_DATASET_DIR = os.path.expanduser("~/your/path/to/parkour_motion_reference")
+_PARKOUR_DATASET_DIR = os.path.expanduser("~/your/path/to/parkour_motion_reference")
 
 
 # ---------------------------------------------------------------------------
@@ -361,7 +362,7 @@ def instinct_g1_parkour_amp_env_cfg(
                     "ang_vel_z": (-1.0, 1.0),
                 },
                 "boxes": {"lin_vel_x": (0.45, 0.8), "lin_vel_y": (0.0, 0.0), "ang_vel_z": (-1.0, 1.0)},
-                "mesh_boxes": {"lin_vel_x": (0.45, 0.8), "lin_vel_y": (0.0, 0.0), "ang_vel_z": (-1.0, 1.0)},
+                "dense_boxes": {"lin_vel_x": (0.45, 0.8), "lin_vel_y": (0.0, 0.0), "ang_vel_z": (-1.0, 1.0)},
                 "hf_pyramid_slope_inv": {
                     "lin_vel_x": (0.45, 0.8),
                     "lin_vel_y": (0.0, 0.0),
@@ -908,8 +909,10 @@ def instinct_g1_parkour_amp_env_cfg(
         )
         leg_volume_points_sensor.debug_vis = True
 
-        cfg.scene.terrain.collision_debug_vis = True
+        cfg.scene.terrain.collision_debug_vis = False
+        cfg.events["register_virtual_obstacles"].params["enable_debug_vis"] = False
         cfg.commands["base_velocity"].debug_vis = True
+        cfg.commands["base_velocity"].patch_vis = False
         cfg.terminations["root_height"] = None
         cfg.events["physics_material"] = None
         cfg.events["reset_robot_joints"].params = {

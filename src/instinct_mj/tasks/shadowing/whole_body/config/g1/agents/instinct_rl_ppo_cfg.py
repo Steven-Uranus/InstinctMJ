@@ -66,12 +66,12 @@ def g1_multi_reward_shadowing_ppo_runner_cfg() -> InstinctRlOnPolicyRunnerCfg:
 
 
 def G1ShadowingPPORunnerCfg() -> InstinctRlOnPolicyRunnerCfg:
-    """Compatibility callable that returns the whole-body shadowing PPO runner config."""
+    """Return the whole-body shadowing PPO runner config."""
 
     return g1_shadowing_ppo_runner_cfg()
 
 
 def G1MultiRewardShadowingPPORunnerCfg() -> InstinctRlOnPolicyRunnerCfg:
-    """Compatibility callable that returns the multi-reward PPO runner config."""
+    """Return the multi-reward PPO runner config."""
 
     return g1_multi_reward_shadowing_ppo_runner_cfg()

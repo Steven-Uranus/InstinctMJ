@@ -25,7 +25,7 @@ from .monitor_manager import MonitorSensor, MonitorTerm
 
 if TYPE_CHECKING:
     from mjlab.entity import Entity
-    from mjlab.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
 
     from instinct_mj.motion_reference import MotionReferenceManager
 
@@ -77,7 +77,7 @@ class TorqueMonitorSensor(MonitorSensor):
     NOTE: If update of joint_acc every decimation, it significantly decreases the performance.
     """
 
-    def __init__(self, cfg: TorqueMonitorSensorCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: TorqueMonitorSensorCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
 
     """
@@ -142,7 +142,7 @@ class TorqueMonitorSensor(MonitorSensor):
 class JointStatMonitorTerm(MonitorTerm):
     """Measuring the performance of the joints. E.g. joint acc, joint vel, joint pos, action rate, etc."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         self._computed_torque_max = torch.zeros(self._env.num_envs, dtype=torch.float32, device=self.device)
         self._joint_acc = torch.zeros(self._env.num_envs, dtype=torch.float32, device=self.device)
@@ -222,7 +222,7 @@ class JointStatMonitorTerm(MonitorTerm):
 class RewardSumMonitorTerm(MonitorTerm):
     """The sum of the reward term in each timestep"""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         self._reward_buf = env.reward_manager._reward_buf
 
@@ -240,7 +240,7 @@ class ActuatorMonitorTerm(MonitorTerm):
     selected, the mean value of the actuator is computed.
     """
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not (self._env.num_envs == 1):
             print("\033[93mWarning: ActuatorMonitorTerm is designed to work with a single environment. \033[0m")
@@ -302,7 +302,7 @@ class ActuatorMonitorTerm(MonitorTerm):
 class BodyStatMonitorTerm(MonitorTerm):
     """Measuring the performance of the body. E.g. body acc, body vel, body pos, action rate, etc."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         self._body_acc = torch.zeros(self._env.num_envs, dtype=torch.float32, device=self.device)
         self._body_acc_max = torch.zeros(self._env.num_envs, dtype=torch.float32, device=self.device)
@@ -358,7 +358,7 @@ class BodyStatMonitorTerm(MonitorTerm):
 
 
 class MotionReferenceMonitorTerm(MonitorTerm):
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         self.num_env_reset = 0
         self.num_motion_reference_exhausted = 0.0  # (conditioned on the envs marked as reset)
@@ -417,7 +417,7 @@ class ShadowingPositionMonitorTerm(MonitorTerm):
     the trajectory.
     """
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -496,7 +496,7 @@ class ShadowingPositionMonitorTerm(MonitorTerm):
 class ShadowingRotationMonitorTerm(MonitorTerm):
     """Measuring the performance of the robot's rotation during shadowing."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -560,7 +560,7 @@ class ShadowingRotationMonitorTerm(MonitorTerm):
 class ShadowingVelocityMonitorTerm(MonitorTerm):
     """Measuring the velocity difference between the robot and the motion reference."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -625,7 +625,7 @@ class ShadowingVelocityMonitorTerm(MonitorTerm):
 class ShadowingJointPosMonitorTerm(MonitorTerm):
     """Measuring the performance of the robot's joint positions during shadowing."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -695,7 +695,7 @@ class ShadowingJointPosMonitorTerm(MonitorTerm):
 class ShadowingJointVelMonitorTerm(MonitorTerm):
     """Measuring the performance of the robot's joint velocities during shadowing."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -764,7 +764,7 @@ class ShadowingJointVelMonitorTerm(MonitorTerm):
 class ShadowingLinkPosMonitorTerm(MonitorTerm):
     """Measuring the performance of the robot's link positions during shadowing."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not "robot_cfg" in self.cfg.params:
             self.cfg.params["robot_cfg"] = SceneEntityCfg("robot")
@@ -835,7 +835,7 @@ class ShadowingLinkPosMonitorTerm(MonitorTerm):
 class ShadowingProgressMonitorTerm(MonitorTerm):
     """Monitor term to write the motion identifier to a specified file."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         self._motion_reference: MotionReferenceManager = self._env.scene[
             self.cfg.params.get("reference_cfg", SceneEntityCfg("motion_reference")).name
@@ -933,7 +933,7 @@ class ShadowingProgressMonitorTerm(MonitorTerm):
 class ShadowingJointReferenceMonitorTerm(MonitorTerm):
     """Monitoring the current motion reference case with the reference data."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not (self._env.num_envs == 1):
             print(
@@ -965,7 +965,7 @@ class ShadowingJointReferenceMonitorTerm(MonitorTerm):
 class ShadowingBasePosMonitorTerm(MonitorTerm):
     """Monitoring the current motion reference case with the reference data."""
 
-    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: MonitorTermCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if not (self._env.num_envs == 1):
             print("\033[93mWarning: ShadowingBasePosMonitorTerm is designed to work with a single environment. \033[0m")

@@ -116,7 +116,7 @@ def _process_greedyconcat_component(
     min_points: int,
     rng_seed: int | None = None,
 ) -> np.ndarray:
-    """Run the legacy Greedyconcat walk on one disconnected edge component."""
+    """Run the original Greedyconcat walk on one disconnected edge component."""
     if vertices.size == 0 or edge_pairs.size == 0:
         return np.empty((0, 6), dtype=np.float32)
 

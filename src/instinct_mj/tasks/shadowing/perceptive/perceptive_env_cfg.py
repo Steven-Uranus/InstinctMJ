@@ -10,7 +10,7 @@ from mjlab.managers import ObservationTermCfg as ObsTermCfg
 from mjlab.managers import RewardTermCfg as RewTermCfg
 from mjlab.managers import SceneEntityCfg
 from mjlab.managers import TerminationTermCfg as DoneTermCfg
-from mjlab.scene import SceneCfg as InteractiveSceneCfg
+from mjlab.scene import SceneCfg
 from mjlab.sensor import (
     ContactMatch,
     ContactSensorCfg,
@@ -165,7 +165,7 @@ def _edit_perceptive_scene_spec(spec: mujoco.MjSpec) -> None:
 
 
 @dataclass(kw_only=True)
-class PerceptiveShadowingSceneCfg(InteractiveSceneCfg):
+class PerceptiveShadowingSceneCfg(SceneCfg):
     """Configuration for the BeyondMimic scene with necessary scene entities as motion reference."""
 
     env_spacing: float = 4.0

@@ -10,9 +10,9 @@ from mjlab.utils.lab_api import math as math_utils
 import instinct_mj.utils.math as instinct_math_utils
 
 if TYPE_CHECKING:
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.viewer.debug_visualizer import DebugVisualizer
 
-    from instinct_mj.envs import ManagerBasedRLEnv
     from instinct_mj.motion_reference import MotionReferenceManager
 
     from .commands_cfg import (
@@ -176,7 +176,7 @@ class ShadowingCommandBase(CommandTerm):
 
     cfg: ShadowingCommandBaseCfg
 
-    def __init__(self, cfg: ShadowingCommandBaseCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: ShadowingCommandBaseCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -293,7 +293,7 @@ class PoseRefCommand(ShadowingCommandBase):
 
     cfg: PoseRefCommandCfg
 
-    def __init__(self, cfg: PoseRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: PoseRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -482,7 +482,7 @@ class PoseRefCommand(ShadowingCommandBase):
 class PositionRefCommand(ShadowingCommandBase):
     cfg: PositionRefCommandCfg
 
-    def __init__(self, cfg: PositionRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: PositionRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -580,7 +580,7 @@ class RotationRefCommand(ShadowingCommandBase):
 
     cfg: RotationRefCommandCfg
 
-    def __init__(self, cfg: RotationRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RotationRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class."""
         super().__init__(cfg, env)
         # generate the command tensor buffer
@@ -723,7 +723,7 @@ class ProjectedGravityRefCommand(ShadowingCommandBase):
 
     cfg: ProjectedGravityRefCommandCfg
 
-    def __init__(self, cfg: ProjectedGravityRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: ProjectedGravityRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -828,7 +828,7 @@ class HeadingRefCommand(ShadowingCommandBase):
 
     cfg: HeadingRefCommandCfg
 
-    def __init__(self, cfg: HeadingRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: HeadingRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -935,7 +935,7 @@ class HeadingErrorRefCommand(ShadowingCommandBase):
 
     cfg: HeadingErrorRefCommandCfg
 
-    def __init__(self, cfg: HeadingErrorRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: HeadingErrorRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1031,7 +1031,7 @@ class BaseHeightRefCommand(ShadowingCommandBase):
 
     cfg: BaseHeightRefCommandCfg
 
-    def __init__(self, cfg: BaseHeightRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: BaseHeightRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1106,7 +1106,7 @@ class BaseLinVelRefCommand(ShadowingCommandBase):
 
     cfg: BaseLinVelRefCommandCfg
 
-    def __init__(self, cfg: BaseLinVelRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: BaseLinVelRefCommandCfg, env: ManagerBasedRlEnv):
         self.cfg = cfg
         super().__init__(cfg, env)
         # generate the command tensor buffer
@@ -1157,7 +1157,7 @@ class JointPosRefCommand(ShadowingCommandBase):
 
     cfg: JointPosRefCommandCfg
 
-    def __init__(self, cfg: JointPosRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: JointPosRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1223,7 +1223,7 @@ class JointPosErrRefCommand(ShadowingCommandBase):
 
     cfg: JointPosErrRefCommandCfg
 
-    def __init__(self, cfg: JointPosErrRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: JointPosErrRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1285,7 +1285,7 @@ class JointVelRefCommand(ShadowingCommandBase):
 
     cfg: JointVelRefCommandCfg
 
-    def __init__(self, cfg: JointVelRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: JointVelRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1351,7 +1351,7 @@ class LinkRefCommand(ShadowingCommandBase):
 
     cfg: LinkRefCommandCfg
 
-    def __init__(self, cfg: LinkRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: LinkRefCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         Args:
@@ -1549,7 +1549,7 @@ class LinkPosRefCommand(ShadowingCommandBase):
 
     cfg: LinkPosRefCommandCfg
 
-    def __init__(self, cfg: LinkPosRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: LinkPosRefCommandCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         data_dims = (3,)
         self._command = torch.zeros(
@@ -1635,7 +1635,7 @@ class LinkRotRefCommand(ShadowingCommandBase):
 
     cfg: LinkRotRefCommandCfg
 
-    def __init__(self, cfg: LinkRotRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: LinkRotRefCommandCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         if self.cfg.rotation_mode == "quaternion":
             data_dims = (4,)
@@ -1726,7 +1726,7 @@ class LinkPosErrRefCommand(LinkPosRefCommand):
 
     cfg: LinkPosErrRefCommandCfg
 
-    def __init__(self, cfg: LinkPosErrRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: LinkPosErrRefCommandCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
         num_vis_links = self.num_envs * self._motion_reference.num_link_to_ref
         self._vis_err_pos = torch.zeros((num_vis_links, 3), device=self.device)
@@ -1804,7 +1804,7 @@ class LinkPosErrRefCommand(LinkPosRefCommand):
             axis,
         )
         # arrow-position
-        # NOTE: Due to the usd file of the arrow, the origin of the arrow file is neither at the start nor the middle.
+        # NOTE: Due to the arrow asset origin, it is neither at the start nor the middle.
         # It is at the 0.25 of the arrow length from the start to the end!!!!
         arrow_pos = start_point + 0.25 * direction
 
@@ -1816,7 +1816,7 @@ class LinkRotErrRefCommand(LinkRotRefCommand):
 
     cfg: LinkRotErrRefCommandCfg
 
-    def __init__(self, cfg: LinkRotErrRefCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: LinkRotErrRefCommandCfg, env: ManagerBasedRlEnv):
         super().__init__(cfg, env)
 
     def _update_command_by_env_ids(self, env_ids: Sequence[int] | torch.Tensor):
@@ -1879,7 +1879,7 @@ class TimeToTargetCommand(ShadowingCommandBase):
 
     cfg: TimeToTargetCommandCfg
 
-    def __init__(self, cfg: TimeToTargetCommandCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: TimeToTargetCommandCfg, env: ManagerBasedRlEnv):
         """Initialize the command term class.
 
         ## NOTE

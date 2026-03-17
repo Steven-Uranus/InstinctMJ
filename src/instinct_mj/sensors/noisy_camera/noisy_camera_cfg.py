@@ -18,7 +18,7 @@ class NoisyCameraCfgMixin:
 
     data_histories: dict[str, int] = field(default_factory=dict)
     """ Configurations for adding history to specified data_types. Please specify which `data_type`
-    you want to add history and the history length. The stacked historical history observation will
+    you want to add history and the history length. The stacked history observation will
     be placed in sensor.data[f"{data_type}_history"]
     NOTE: If you want to add history to the noised output, you need to specify the data_type as the one with _noised postfix.
     """

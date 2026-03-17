@@ -1,5 +1,3 @@
-from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
-from mjlab.envs import ManagerBasedRlEnvCfg as ManagerBasedRLEnvCfg
 from mjlab.envs import VecEnvObs as VecEnvObs
 from mjlab.envs import VecEnvStepReturn as VecEnvStepReturn
 from mjlab.viewer.viewer_config import ViewerConfig

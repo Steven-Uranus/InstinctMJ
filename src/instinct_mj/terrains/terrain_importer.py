@@ -11,8 +11,8 @@ import numpy as np
 import torch
 import trimesh
 from mjlab.terrains import SubTerrainCfg as SubTerrainBaseCfg
+from mjlab.terrains import TerrainEntity as TerrainImporterBase
 from mjlab.terrains import TerrainGenerator
-from mjlab.terrains import TerrainImporter as TerrainImporterBase
 
 from .height_field.utils import convert_height_field_to_mesh
 
@@ -466,7 +466,7 @@ class TerrainImporter(TerrainImporterBase):
                 height_threshold = None
 
         if height_threshold is not None:
-            # Legacy low-step repair should only affect discontinuous hfield
+            # Low-step repair should only affect discontinuous hfield
             # terrains. It overrides slope-threshold projection locally so
             # short stair risers/gap lips remain connected in mesh_like mode.
             slope_threshold = height_threshold / float(y_step)
@@ -522,7 +522,7 @@ class TerrainImporter(TerrainImporterBase):
 
     @staticmethod
     def _should_apply_mesh_like_height_repair(subterrain_cfg: SubTerrainBaseCfg | None) -> bool:
-        """Whether legacy low-step repair should apply to this subterrain."""
+        """Whether low-step repair should apply to this subterrain."""
         if subterrain_cfg is None:
             return True
         cfg_type_name = type(subterrain_cfg).__name__

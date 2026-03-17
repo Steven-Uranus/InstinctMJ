@@ -10,8 +10,8 @@ from mjlab.utils.lab_api import math as math_utils
 from instinct_mj.envs.mdp.events.randomization import _randomize_prop_by_op
 
 if TYPE_CHECKING:
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.envs import ManagerBasedRlEnv as ManagerBasedEnv
-    from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
     from mjlab.sensor import CameraSensor as Camera
     from mjlab.sensor import CameraSensor as TiledCamera
     from mjlab.sensor import RayCastSensor as RayCasterCamera

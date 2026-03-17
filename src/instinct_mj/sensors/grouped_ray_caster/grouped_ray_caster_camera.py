@@ -390,7 +390,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
 
         # update output buffers
         if "distance_to_image_plane" in self.cfg.data_types:
-            # Keep legacy camera convention: camera forward is +X in camera-local frame.
+            # Use the camera frame with +X as the forward axis.
             quat_inv = math_utils.quat_inv(quat_w).unsqueeze(1).expand(-1, self.num_rays, -1).reshape(-1, 4)
             image_ray_vec = (ray_depth_image[:, :, None] * ray_directions_w).reshape(-1, 3)
             distance_to_image_plane = math_utils.quat_apply(quat_inv, image_ray_vec).view(
@@ -486,7 +486,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
             raise ValueError(
                 f"GroupedRayCasterCamera class does not support the following sensor types: {common_elements}."
                 "\n\tThis is because these sensor types cannot be obtained in a fast way using ''warp''."
-                "\n\tHint: If you need to work with these sensor types, use a full USD camera sensor"
+                "\n\tHint: If you need these sensor types, use a full camera sensor"
                 " backend instead of the grouped ray-caster path."
             )
 
@@ -522,7 +522,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
         pattern_cfg = self.cfg.pattern
         if self.cfg.focal_length is not None and self.cfg.horizontal_aperture is not None:
             vertical_aperture = self.cfg.vertical_aperture
-            # Keep InstinctLab semantics: auto-compute vertical aperture if omitted.
+            # Compute vertical aperture from the image aspect ratio if omitted.
             if vertical_aperture is None:
                 vertical_aperture = self.cfg.horizontal_aperture * pattern_cfg.height / pattern_cfg.width
             f_x = pattern_cfg.width * self.cfg.focal_length / self.cfg.horizontal_aperture
@@ -547,7 +547,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
     def _compute_pinhole_rays_from_intrinsics(
         self, intrinsic_matrices: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        """Compute pinhole rays from intrinsic matrices in legacy camera convention."""
+        """Compute pinhole rays from intrinsic matrices."""
         # get image plane mesh grid
         grid = torch.meshgrid(
             torch.arange(start=0, end=self.cfg.pattern.width, dtype=torch.int32, device=self._device),
@@ -563,7 +563,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
         # get pixel coordinates in camera frame
         pix_in_cam_frame = torch.matmul(torch.inverse(intrinsic_matrices), pixels.T)
         # Convert from image camera frame (x-right, y-down, z-forward) to
-        # robotics/world camera frame (x-forward, y-left, z-up) used by InstinctLab.
+        # world camera frame (x-forward, y-left, z-up).
         transform_vec = (
             torch.tensor([1, -1, -1], device=self._device, dtype=intrinsic_matrices.dtype).unsqueeze(0).unsqueeze(2)
         )
@@ -614,7 +614,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
         return pos_w, quat_w
 
     def _sense_on_demand(self) -> None:
-        """Fallback path to preserve legacy data-access refresh semantics."""
+        """Run sensing on demand when the camera data is requested."""
         if self._ctx is None:
             return
         if self._model is None or self._data is None or self._wp_device is None:

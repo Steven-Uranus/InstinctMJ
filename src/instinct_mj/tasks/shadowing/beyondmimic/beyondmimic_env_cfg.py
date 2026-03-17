@@ -8,9 +8,9 @@ from mjlab.managers import ObservationTermCfg as ObsTermCfg
 from mjlab.managers import RewardTermCfg as RewTermCfg
 from mjlab.managers import SceneEntityCfg
 from mjlab.managers import TerminationTermCfg as DoneTermCfg
-from mjlab.scene import SceneCfg as InteractiveSceneCfg
+from mjlab.scene import SceneCfg
 from mjlab.sensor import ContactMatch, ContactSensorCfg, SensorCfg
-from mjlab.terrains import TerrainImporterCfg
+from mjlab.terrains import TerrainEntityCfg
 from mjlab.utils.noise import UniformNoiseCfg
 from mjlab.utils.spec_config import MaterialCfg, TextureCfg
 
@@ -91,19 +91,16 @@ def _edit_beyondmimic_scene_spec(spec: mujoco.MjSpec) -> None:
 
 
 @dataclass(kw_only=True)
-class BeyondMimicSceneCfg(InteractiveSceneCfg):
+class BeyondMimicSceneCfg(SceneCfg):
     """Configuration for the BeyondMimic scene with necessary scene entities as motion reference."""
 
     env_spacing: float = 4.0
 
     # terrain
     terrain: object = field(
-        default_factory=lambda: TerrainImporterCfg(
-            prim_path="/World/ground",
+        default_factory=lambda: TerrainEntityCfg(
             terrain_type="plane",
             terrain_generator=None,
-            physics_material=None,
-            visual_material=None,
         )
     )
 

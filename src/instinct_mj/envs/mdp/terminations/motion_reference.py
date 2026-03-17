@@ -10,13 +10,13 @@ import instinct_mj.motion_reference.utils as motion_reference_utils
 
 if TYPE_CHECKING:
     from mjlab.entity import Entity
-    from mjlab.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
 
     from instinct_mj.motion_reference import MotionReferenceManager
 
 
 def pos_far_from_ref(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     distance_threshold: float = 0.5,
@@ -73,7 +73,7 @@ class joint_pos_far_from_ref(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
         difference_threshold: float = 0.5,
@@ -114,7 +114,7 @@ class joint_pos_far_from_ref(ManagerTermBase):
 
 
 def link_pos_far_from_ref(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     distance_threshold: float = 0.5,
@@ -153,7 +153,7 @@ def link_pos_far_from_ref(
 
 
 def rot_far_from_ref(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     rot_axis_threshold: float = 1.5714 / 2,
@@ -194,7 +194,7 @@ def rot_far_from_ref(
 
 
 def projected_gravity_far_from_ref(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     projected_gravity_threshold: float = 0.5,

@@ -21,8 +21,7 @@ class VolumePointsData:
     Shape: (N, B, 4), where N is the number of envs, B is the number of bodies in each env.
 
     Note:
-        In mjlab (MuJoCo), the quaternion is in the format (w, x, y, z).
-        Legacy data sometimes used (x, y, z, w) format with explicit conversion.
+        The quaternion is stored in (w, x, y, z) order.
     """
 
     vel_w: torch.Tensor = MISSING

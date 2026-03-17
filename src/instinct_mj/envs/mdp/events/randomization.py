@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import torch
+from mjlab.envs import ManagerBasedRlEnv
 from mjlab.envs.mdp import dr
 from mjlab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
 from mjlab.managers.event_manager import RecomputeLevel, requires_model_fields
 from mjlab.sensor import RayCastSensor as RayCaster
 from mjlab.utils.lab_api import math as math_utils
 
-from instinct_mj.envs import ManagerBasedRLEnv
 from instinct_mj.sensors.grouped_ray_caster import GroupedRayCaster
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from instinct_mj.sensors.grouped_ray_caster import GroupedRayCasterCamera
 
-ManagerBasedEnv = ManagerBasedRLEnv
+ManagerBasedEnv = ManagerBasedRlEnv
 
 # DR engine builtin `add` uses defaults; this custom op adds sampled offsets to current model values.
 _DR_ADD_CURRENT = dr.Operation(
@@ -171,11 +171,7 @@ def randomize_rigid_body_coms(
     coms_z_distribution_params: tuple[float, float],
     distribution: Literal["uniform", "log_uniform", "gaussian"] = "uniform",
 ):
-    """Legacy InstinctLab COM randomization signature.
-
-    Keep the existing "add to current values" semantics while delegating to the
-    latest ``com_range``-style implementation used by current shadowing tasks.
-    """
+    """Randomize rigid-body COM offsets from per-axis ranges."""
     randomize_rigid_body_com(
         env=env,
         env_ids=env_ids,
@@ -196,13 +192,13 @@ def randomize_rigid_body_com(
     com_range: dict[str, tuple[float, float]],
     distribution: Literal["uniform", "log_uniform", "gaussian"] = "uniform",
 ):
-    """Randomize rigid-body COM offsets using latest InstinctLab ``com_range`` semantics."""
+    """Randomize rigid-body COM offsets from ``com_range``."""
     axis_map = {"x": 0, "y": 1, "z": 2}
     ranges = {axis_map[axis_name]: axis_range for axis_name, axis_range in com_range.items() if axis_name in axis_map}
     if len(ranges) == 0:
         return
 
-    # Keep InstinctLab "add to current values" semantics while using the model-field DR engine.
+    # Apply sampled offsets on top of the current COM values.
     dr.body_ipos(
         env=env,
         env_ids=env_ids,
@@ -415,7 +411,7 @@ def randomize_camera_offsets(
 
 
 def randomize_rigid_body_material(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     env_ids: torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     static_friction_range: tuple[float, float] = (0.3, 1.6),
@@ -423,21 +419,19 @@ def randomize_rigid_body_material(
     restitution_range: tuple[float, float] = (0.0, 0.5),
     num_buckets: int = 64,
 ) -> None:
-    """Randomize rigid body material properties with MuJoCo-equivalent friction.
+    """Randomize rigid body material properties through MuJoCo geom friction fields.
 
-    Legacy configuration uses static+dynamic friction and restitution. MuJoCo geoms
-    expose slide/spin/roll friction and no direct restitution coefficient. We map
-    static+dynamic friction ranges to slide friction (axis 0) and keep the
-    restitution argument for API compatibility.
+    MuJoCo geoms expose slide, spin, and roll friction and do not provide a per-geom
+    restitution coefficient. The provided static and dynamic friction ranges are
+    merged into the slide-friction interval.
     """
-    # Closest MuJoCo equivalent to legacy static/dynamic friction is slide
-    # friction. Use both ranges to form a conservative interval.
+    # Use both friction ranges to form the slide-friction interval.
     slide_friction_range = (
         min(static_friction_range[0], dynamic_friction_range[0]),
         max(static_friction_range[1], dynamic_friction_range[1]),
     )
 
-    # MuJoCo has no direct restitution coefficient per geom.
+    # MuJoCo has no per-geom restitution coefficient.
     del num_buckets, restitution_range
     dr.geom_friction(
         env,

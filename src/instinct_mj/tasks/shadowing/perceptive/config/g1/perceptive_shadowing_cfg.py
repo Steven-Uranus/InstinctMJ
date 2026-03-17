@@ -28,13 +28,9 @@ from instinct_mj.motion_reference.utils import motion_interpolate_bilinear
 
 G1_CFG = G1_29DOF_TORSOBASE_POPSICLE_CFG
 
-# NOTE: Default perceptive shadowing dataset on this machine.
-# You can override this without editing code by setting:
-#   INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/dataset_root
-MOTION_FOLDER = os.environ.get(
-    "INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER",
-    "/home/lxj/instinct/instinct/Instinct/data/20251116_50cm_kneeClimbStep1",
-)
+# NOTE: Change this to your local perceptive shadowing dataset folder.
+# The folder should contain the motion files and a `metadata.yaml`.
+MOTION_FOLDER = "~/your/path/to/20251116_50cm_kneeClimbStep1"
 
 
 @dataclass(kw_only=True)
@@ -114,10 +110,11 @@ motion_reference_cfg = MotionReferenceManagerCfg(
     update_period=0.02,
     num_frames=10,
     data_start_from="current_time",
-    # Keep debug visualization in the raw motion/terrain frame by default.
-    visualizing_robot_offset=(0.0, 0.0, 0.0),
-    visualizing_robot_from="aiming_frame",
-    visualizing_marker_types=["links"],
+    # set the robot_reference directly at where they are in the scene
+    # DO NOT FORGET to change this when in actual training
+    visualizing_robot_offset=(2.0, 0.0, 0.0),
+    visualizing_robot_from="reference_frame",
+    visualizing_marker_types=["relative_links", "links"],
     motion_buffers={
         "TerrainMotion": TerrainMotionCfg(),
     },
@@ -267,11 +264,10 @@ class G1PerceptiveShadowingEnvCfg_PLAY(G1PerceptiveShadowingEnvCfg):
         self.terminations["base_pg_too_far"] = None
         self.terminations["link_pos_too_far"] = None
 
-        # Keep the robot/reference in the exact raw motion frame for alignment checking.
-        self.events["reset_robot"].params["position_offset"] = [0.0, 0.0, 0.0]
-        motion_reference_cfg.visualizing_robot_offset = (0.0, 0.0, 0.0)
-        self.viewer.entity_name = "robot_reference"
-        self.viewer.body_name = "torso_link"
+        # put the reference in scene and move the robot elsewhere and visualize the reference
+        # self.events.reset_robot.params["position_offset"] = [0.0, 1.0, 2.0]
+        # self.scene.motion_reference.visualizing_robot_offset = (0.0, 0.0, 0.0)
+        # self.viewer.entity_name = "robot_reference"
 
         # remove some randomizations
         self.events["add_joint_default_pos"] = None
