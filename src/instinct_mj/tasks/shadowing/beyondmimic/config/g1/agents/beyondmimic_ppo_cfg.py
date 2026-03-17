@@ -56,6 +56,6 @@ def g1_beyondmimic_ppo_runner_cfg() -> InstinctRlOnPolicyRunnerCfg:
 
 
 def G1BeyondMimicPPORunnerCfg() -> InstinctRlOnPolicyRunnerCfg:
-    """Compatibility callable that returns the G1 BeyondMimic PPO runner config."""
+    """Return the G1 BeyondMimic PPO runner config."""
 
     return g1_beyondmimic_ppo_runner_cfg()

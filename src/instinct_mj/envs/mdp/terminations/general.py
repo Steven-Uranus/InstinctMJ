@@ -10,13 +10,13 @@ from mjlab.sensor import ContactSensor
 
 if TYPE_CHECKING:
     from mjlab.entity import Entity
-    from mjlab.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
 
     from instinct_mj.motion_reference import MotionReferenceManager
 
 
 def dataset_exhausted(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     reference_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
     reset_without_notice: bool = False,
     print_reason: bool = False,
@@ -42,7 +42,7 @@ def dataset_exhausted(
 
 
 def terrain_out_of_bounds(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     distance_buffer: float = 3.0,
     print_reason: bool = False,
@@ -83,7 +83,7 @@ def terrain_out_of_bounds(
 
 
 def abnormal_lin_vel(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     max_value: float = 40.0,  # [m/s]
 ):
@@ -92,7 +92,7 @@ def abnormal_lin_vel(
 
 
 def abnormal_ang_vel(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     max_value: float = 40.0,  # [rad/s]
 ):
@@ -101,7 +101,7 @@ def abnormal_ang_vel(
 
 
 def abnormal_joint_vel(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     max_value: float = 40.0,  # [rad/s]
 ):
@@ -110,7 +110,7 @@ def abnormal_joint_vel(
 
 
 def abnormal_joint_acc(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     max_value: float = 4000.0,  # [rad/s^2]
 ):
@@ -119,7 +119,7 @@ def abnormal_joint_acc(
 
 
 class illegal_reset_contact(ManagerTermBase):
-    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.threshold = cfg.params["threshold"]
         self.sensor_name = cfg.params["sensor_name"]
@@ -130,7 +130,7 @@ class illegal_reset_contact(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         threshold: float,
         sensor_name: str,
         asset_cfg: SceneEntityCfg,

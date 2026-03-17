@@ -43,9 +43,9 @@ def _find_flat_patches_on_surface_mesh(
     z_range: tuple[float, float],
     max_height_diff: float,
 ) -> np.ndarray:
-    """Find flat patches on mesh terrains (legacy-compatible behavior).
+    """Find flat patches on mesh terrains while preserving the existing behavior.
 
-    This mirrors the legacy mesh-based `find_flat_patches()` flow used by the
+    This mirrors the previous mesh-based `find_flat_patches()` flow used by the
     original InstinctLab terrain generator:
     1. Sample XY candidates in configured local ranges around `origin`.
     2. Ray-cast circular footprints onto the mesh.
@@ -203,11 +203,11 @@ class FiledTerrainGenerator(TerrainGenerator):
 
     @staticmethod
     def _sync_subterrain_scales(cfg: FiledTerrainGeneratorCfg) -> None:
-        """Apply generator-level scales to all compatible sub-terrains.
+        """Apply generator-level scales to sub-terrains that define these fields.
 
-        Legacy InstinctLab terrain generation treats ``horizontal_scale``,
-        ``vertical_scale`` and ``slope_threshold`` as generator-wide settings.
-        Parkour configs rely on this behavior (for example stair step discretization).
+        ``horizontal_scale``, ``vertical_scale``, and ``slope_threshold`` are used
+        as generator-wide settings. Parkour configs rely on this behavior
+        (for example stair step discretization).
         """
         from .height_field.hf_terrains_cfg import HfTerrainBaseCfg
 
@@ -461,7 +461,7 @@ class FiledTerrainGenerator(TerrainGenerator):
 
         # Collect world-frame mesh for virtual obstacle generation.
         # Prefer the generator-side source mesh so mesh-like virtual-obstacle
-        # extraction stays closer to the original IsaacLab/InstinctLab
+        # extraction stays closer to the original InstinctLab-style
         # heightfield-to-mesh conversion path.
         surface_mesh_parts: list[trimesh.Trimesh] = []
         surface_mesh_local = getattr(output, "instinct_surface_mesh", None)

@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import torch
+from mjlab.envs import ManagerBasedRlEnv
 from mjlab.managers import SceneEntityCfg
 from mjlab.utils.lab_api import math as math_utils
 
 import instinct_mj.utils.math as instinct_math_utils
-from instinct_mj.envs import ManagerBasedRLEnv
 
 if TYPE_CHECKING:
     from mjlab.entity import Entity as Articulation
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 def get_joint_pos_diff_to_cmd(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg,
     command_term: JointPosRefCommand,
 ) -> torch.Tensor:
@@ -52,7 +52,7 @@ def get_joint_pos_diff_to_cmd(
 
 
 def get_joint_vel_diff_to_cmd(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg,
     command_term: JointVelRefCommand,
 ) -> torch.Tensor:
@@ -76,7 +76,7 @@ def get_joint_vel_diff_to_cmd(
 
 
 def get_link_pos_diff_to_cmd(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg,
     command_term: LinkPosRefCommand,
 ) -> torch.Tensor:
@@ -112,7 +112,7 @@ def get_link_pos_diff_to_cmd(
 
 
 def get_link_rot_diff_mag_to_cmd(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg,
     command_term: LinkRotRefCommand,
 ) -> torch.Tensor:

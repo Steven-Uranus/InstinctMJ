@@ -15,7 +15,7 @@ from mjlab.managers import ManagerTermBase, SceneEntityCfg
 
 if TYPE_CHECKING:
     from mjlab.entity import Entity as Articulation
-    from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.managers import RewardTermCfg
     from mjlab.sensor import ContactSensor
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class constant_reward(ManagerTermBase):
     """Constant reward term, used for debugging and testing. You may hack and override this term whenever you want to."""
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         asset: Articulation = env.scene[cfg.params.get("asset_cfg", SceneEntityCfg("robot")).name]
         self.reward = torch.ones(asset.num_instances, device=env.device, dtype=torch.float) * cfg.params.get(
@@ -32,7 +32,7 @@ class constant_reward(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     ):
         return self.reward
@@ -97,7 +97,7 @@ def _joint_applied_and_computed_torque(asset: Articulation) -> tuple[torch.Tenso
 
 
 def _body_lin_acc_w(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset: Articulation,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
@@ -125,7 +125,7 @@ def _body_lin_acc_w(
 
 
 def motors_power_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_stiffness: bool = True,
     normalize_by_num_joints: bool = False,
@@ -145,7 +145,7 @@ def motors_power_square(
 
 
 def body_lin_acc_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_bodies: bool = False,
 ):
@@ -161,7 +161,7 @@ def body_lin_acc_square(
 
 
 def body_lin_acc_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_bodies: bool = False,
     torlerance: float = 10.0,
@@ -190,7 +190,7 @@ def body_lin_acc_gauss(
 
 
 def action_rate_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     normalize_by_num_actions: bool = False,
     torlerance: float = 0,
     sigma: float = 2.0,
@@ -217,7 +217,7 @@ def action_rate_gauss(
 
 
 def action_rate_order(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     order: int = 2,
     action_ids: Sequence[int] | None = None,
 ):
@@ -234,7 +234,7 @@ class action_rate_direction_switch(ManagerTermBase):
     Hoping to reduce the action jittering.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self._last_action = torch.zeros_like(env.action_manager.action)
         self._last_action_direction = torch.zeros_like(env.action_manager.action)  # +1 or -1
@@ -245,7 +245,7 @@ class action_rate_direction_switch(ManagerTermBase):
         self._last_action_direction[env_ids] = 0.0
         self._action_direction_switch_count[env_ids] = 0.0
 
-    def __call__(self, env: ManagerBasedRLEnv, eps: float = 0.8, mask: bool = False):
+    def __call__(self, env: ManagerBasedRlEnv, eps: float = 0.8, mask: bool = False):
         """Compute the action rate directional error.
         Args:
             mask: If True, the error will be masked by the current direction switch mask
@@ -277,7 +277,7 @@ class action_rate_direction_consistent(ManagerTermBase):
     Positive weight encourages longer action rate consistency.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self._last_action = torch.zeros_like(env.action_manager.action)
         self._last_action_direction = torch.zeros_like(env.action_manager.action)  # +1 or -1
@@ -290,7 +290,7 @@ class action_rate_direction_consistent(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         action_ids: Sequence[int] | None = None,
         threshold: float = 0.5,  # seconds
         non_positive: bool = False,
@@ -337,7 +337,7 @@ class action_rate_direction_consistent(ManagerTermBase):
 
 
 def joint_deviation_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
     asset: Articulation = env.scene[asset_cfg.name]
@@ -350,7 +350,7 @@ def joint_deviation_square(
 class joint_torque_sign_switch(ManagerTermBase):
     """Since policy will seriously jitter and lead to torque sign switch, we need to penalize this behavior."""
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset_cfg = cfg.params.get("asset_cfg", SceneEntityCfg("robot"))
         self.asset = env.scene[self.asset_cfg.name]
@@ -360,7 +360,7 @@ class joint_torque_sign_switch(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         normalize_by_num_joints: bool = False,
     ):
@@ -381,7 +381,7 @@ class joint_torque_sign_switch(ManagerTermBase):
 
 
 def joint_torques_l2(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_stiffness: bool = False,
     normalize_by_num_joints: bool = False,
@@ -406,7 +406,7 @@ def joint_torques_l2(
 
 
 def joint_torques_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     torlerance: float = 0.0,
     sigma: float = 0.4,
@@ -446,7 +446,7 @@ def joint_torques_gauss(
 class joint_torques_direction_switch(ManagerTermBase):
     """Reward term for counting the joint torques changes when the torque direction changes."""
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset_cfg = cfg.params.get("asset_cfg", SceneEntityCfg("robot"))
         self.asset = env.scene[self.asset_cfg.name]
@@ -464,7 +464,7 @@ class joint_torques_direction_switch(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         eps: float = 0.8,
         mask: bool = False,
@@ -503,14 +503,14 @@ class joint_acc_l2_step(ManagerTermBase):
     simulation step and that variable is usually un-stable.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset = env.scene[cfg.params.get("asset_cfg", SceneEntityCfg("robot")).name]
         self._last_joint_vel = torch.zeros_like(self.asset.data.joint_vel)
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         normalize_by_num_joints: bool = False,
     ):
@@ -531,7 +531,7 @@ class joint_acc_l2_step(ManagerTermBase):
 
 
 def joint_acc_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_joints: bool = False,
     torlerance: float = 10.0,
@@ -564,14 +564,14 @@ class joint_acc_gauss_step(ManagerTermBase):
     simulation step and that variable is usually un-stable.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset = env.scene[cfg.params.get("asset_cfg", SceneEntityCfg("robot")).name]
         self._last_joint_vel = torch.zeros_like(self.asset.data.joint_vel)
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         normalize_by_num_joints: bool = False,
         torlerance: float = 10.0,
@@ -610,7 +610,7 @@ class joint_acc_direction_switch(ManagerTermBase):
     Hoping to reduce the joint acceleration jittering.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset_cfg = cfg.params.get("asset_cfg", SceneEntityCfg("robot"))
         self.asset: Articulation = env.scene[self.asset_cfg.name]
@@ -627,7 +627,7 @@ class joint_acc_direction_switch(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         eps: float = 0.8,
         mask: bool = False,
@@ -657,7 +657,7 @@ class joint_acc_direction_switch(ManagerTermBase):
 
 
 def joint_vel_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_joints: bool = False,
     torlerance: float = 1.0,
@@ -690,7 +690,7 @@ class joint_vel_direction_switch(ManagerTermBase):
     Hoping to reduce the joint velocity jittering.
     """
 
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRlEnv):
         super().__init__(env)
         self.asset_cfg = cfg.params.get("asset_cfg", SceneEntityCfg("robot"))
         self.asset: Articulation = env.scene[self.asset_cfg.name]
@@ -705,7 +705,7 @@ class joint_vel_direction_switch(ManagerTermBase):
 
     def __call__(
         self,
-        env: ManagerBasedRLEnv,
+        env: ManagerBasedRlEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         eps: float = 0.8,
         mask: bool = False,
@@ -736,7 +736,7 @@ class joint_vel_direction_switch(ManagerTermBase):
 
 
 def joint_err_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_joints: bool = False,
     torlerance: float = 0.57,
@@ -771,7 +771,7 @@ Common Soft limits
 
 
 def joint_pos_limits_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_num_joints: bool = False,
     normalize_by_limits: bool = False,  # if True, normalize by the joint limits range
@@ -811,7 +811,7 @@ def joint_pos_limits_gauss(
 
 
 def applied_torque_limits_gauss(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_stiffness: bool = True,  # whether to normalize by the joint stiffness
     normalize_by_num_joints: bool = False,
@@ -849,7 +849,7 @@ def applied_torque_limits_gauss(
 
 
 def applied_torque_limits_square(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     normalize_by_stiffness: bool = True,  # whether to normalize by the joint stiffness
     normalize_by_num_joints: bool = False,
@@ -875,7 +875,7 @@ def applied_torque_limits_square(
 
 
 def applied_torque_limits_by_ratio(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     limit_ratio: float = 0.8,
 ):
@@ -950,7 +950,7 @@ def contact_slide(
 
 
 def contact_rotate(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     sensor_cfg: SceneEntityCfg,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     threshold: float = 0.1,
@@ -978,7 +978,7 @@ def contact_rotate(
 
 
 def contact_switch(
-    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, count_contact: bool = True, count_air: bool = True
+    env: ManagerBasedRlEnv, sensor_cfg: SceneEntityCfg, count_contact: bool = True, count_air: bool = True
 ) -> torch.Tensor:
     """Reward (penalize) when the sensor detects a contact or a detach."""
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
@@ -1003,7 +1003,7 @@ def contact_switch(
 
 
 def contact_air_time(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     sensor_cfg: SceneEntityCfg,
     threshold: float = 0.0,
 ) -> torch.Tensor:
@@ -1018,7 +1018,7 @@ def contact_air_time(
 
 
 def contact_stay_time(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     sensor_cfg: SceneEntityCfg,
     threshold: float = 0.0,
 ) -> torch.Tensor:
@@ -1033,14 +1033,14 @@ def contact_stay_time(
 
 
 def undesired_contacts(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     threshold: float,
     sensor_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
     """Penalize undesired contacts as the number of violations that are above a threshold.
 
-    Mirrors the legacy ``mdp.undesired_contacts``: for each body, check if the
+    Mirrors the previous ``mdp.undesired_contacts``: for each body, check if the
     maximum contact-force magnitude over the sensor's history window exceeds the
     threshold, then count these bodies.
 

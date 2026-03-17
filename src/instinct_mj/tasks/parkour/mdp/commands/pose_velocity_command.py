@@ -315,10 +315,9 @@ class PoseVelocityCommand(CommandTerm):
     def _debug_vis_impl(self, visualizer) -> None:
         """Draw target positions and velocity arrows using MuJoCo geometry.
 
-        This replaces the legacy marker path with native MuJoCo visualization.
+        This replaces the previous marker path with native MuJoCo visualization.
         """
-        env_indices = visualizer.get_env_indices(self.num_envs)
-        if not env_indices:
+        if self.num_envs <= 0:
             return
 
         # Convert to numpy for visualization
@@ -334,6 +333,26 @@ class PoseVelocityCommand(CommandTerm):
         patch_height = 0.05
         arrow_z_offset = 0.5
         arrow_scale = 0.5
+
+        # Match the original task behavior: when debug visualization is enabled,
+        # show command markers for every environment, not only the selected one.
+        env_indices = range(self.num_envs)
+
+        if self.cfg.patch_vis:
+            flat_patches = self.valid_targets.reshape(-1, 3).cpu().numpy()
+            for i, patch_pos in enumerate(flat_patches):
+                if np.linalg.norm(patch_pos) < 1e-6:
+                    continue
+                patch_start = patch_pos.copy()
+                patch_end = patch_pos.copy()
+                patch_end[2] += patch_height
+                visualizer.add_cylinder(
+                    start=patch_start,
+                    end=patch_end,
+                    radius=goal_radius,
+                    color=(0.0, 0.0, 1.0, 0.3),
+                    label=f"patch_{i}",
+                )
 
         for batch in env_indices:
             # Skip if robot appears uninitialized (at origin)
@@ -394,24 +413,3 @@ class PoseVelocityCommand(CommandTerm):
                 width=0.02,
                 label=f"actual_vel_{batch}",
             )
-
-            # 4. Optionally draw all flat patches (if patch_vis is enabled)
-            if self.cfg.patch_vis:
-                valid_targets = self.valid_targets.cpu().numpy()
-                terrain_level = self.terrain.terrain_levels[batch].item()
-                terrain_type = self.terrain.terrain_types[batch].item()
-                patches = valid_targets[terrain_level, terrain_type]
-
-                for i, patch_pos in enumerate(patches):
-                    if np.linalg.norm(patch_pos) < 1e-6:  # Skip invalid patches
-                        continue
-                    patch_start = patch_pos.copy()
-                    patch_end = patch_pos.copy()
-                    patch_end[2] += patch_height
-                    visualizer.add_cylinder(
-                        start=patch_start,
-                        end=patch_end,
-                        radius=goal_radius,
-                        color=(0.0, 0.0, 1.0, 0.3),
-                        label=f"patch_{batch}_{i}",
-                    )

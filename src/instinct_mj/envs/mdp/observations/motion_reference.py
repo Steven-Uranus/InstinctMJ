@@ -7,14 +7,14 @@ from mjlab.managers import SceneEntityCfg
 from mjlab.utils.lab_api import math as math_utils
 
 if TYPE_CHECKING:
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.envs import ManagerBasedRlEnv as ManagerBasedEnv
-    from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
 
     from instinct_mj.motion_reference import MotionReferenceManager
 
 
 def reference_progress(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference"),
 ) -> torch.Tensor:
     """The progress of the reference motion, from 0 to 1.
@@ -59,9 +59,7 @@ def time_from_reference_update(
 def ref_frame_interval(
     env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference")
 ) -> torch.Tensor:
-    """A legacy reference time observation.
-    Combing motion frame interval (s) and the time to target frame
-    """
+    """Reference time observation combining frame interval and time to target frame."""
     motion_reference: MotionReferenceManager = env.scene[asset_cfg.name]
     frame_interval = motion_reference.data.time_to_target_frame[..., :1]
     time_from_reference_update = motion_reference.time_passed_from_update.unsqueeze(-1)
@@ -69,8 +67,7 @@ def ref_frame_interval(
     return torch.cat(
         [
             frame_interval,
-            # I know this value start from frame_interval to negative values...
-            # It is not designed well in the legacy implementation.
+            # This value starts from frame_interval and may become negative.
             time_to_target,
         ],
         dim=-1,
@@ -134,7 +131,7 @@ def pose_ref_mask(
     return return_
 
 
-def pose_ref_mask_legacy(
+def pose_ref_mask_compact(
     env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("motion_reference")
 ) -> torch.Tensor:
     motion_reference: MotionReferenceManager = env.scene[asset_cfg.name]

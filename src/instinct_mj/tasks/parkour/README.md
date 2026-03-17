@@ -29,13 +29,24 @@ instinct-train Instinct-Parkour-Target-Amp-G1-v0
 instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 --load-run <run_name>
 ```
 
-4. Export trained policy (`--load-run` must be provided, absolute path is recommended):
+4. Released weights and play command:
+
+   - Pretrained weights: [Google Drive folder](https://drive.google.com/drive/folders/1B2AP5MEC5hDF7w5ws9oIiRKStL_gRxhE?usp=drive_link)
+   - Play command:
+
+```bash
+instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 \
+  --load-run <downloaded_run_dir> \
+  --checkpoint-file <checkpoint_file>
+```
+
+5. Export trained policy (`--load-run` must be provided, absolute path is recommended):
 
 ```bash
 instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 --load-run <run_name> --export-onnx
 ```
 
-5. Use the exported ONNX policy for play:
+6. Use the exported ONNX policy for play:
 
 ```bash
 instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 --load-run <run_name> --use-onnx

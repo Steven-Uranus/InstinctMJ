@@ -7,6 +7,11 @@ from mjlab.managers import SceneEntityCfg
 from mjlab.sensor import ContactSensor, RayCastSensor
 from mjlab.utils.lab_api.math import quat_apply_inverse
 
+from instinct_mj.envs.mdp.rewards.regularizations import (
+    applied_torque_limits_by_ratio as _applied_torque_limits_by_ratio_general,
+)
+from instinct_mj.envs.mdp.rewards.regularizations import motors_power_square as _motors_power_square_general
+
 if TYPE_CHECKING:
     from mjlab.entity import Entity
     from mjlab.envs import ManagerBasedRlEnv
@@ -274,22 +279,12 @@ def motors_power_square(
     normalize_by_stiffness: bool = True,
     normalize_by_num_joints: bool = False,
 ) -> torch.Tensor:
-    asset: Entity = env.scene[asset_cfg.name]
-    # mjlab uses actuator_force instead of applied_torque
-    power_j = asset.data.actuator_force * asset.data.joint_vel
-    if normalize_by_stiffness:
-        # mjlab: stiffness is configured on each BuiltinPositionActuator cfg.
-        for actuator in asset.actuators:
-            base_actuator = actuator.base_actuator
-            target_ids = base_actuator.target_ids
-            stiffness = base_actuator.cfg.stiffness
-            power_j[:, target_ids] /= torch.as_tensor(stiffness, device=power_j.device, dtype=power_j.dtype)
-
-    power_j = power_j[:, asset_cfg.joint_ids]
-    power = torch.sum(torch.square(power_j), dim=-1)
-    if normalize_by_num_joints:
-        power = power / power_j.shape[-1]
-    return power
+    return _motors_power_square_general(
+        env=env,
+        asset_cfg=asset_cfg,
+        normalize_by_stiffness=normalize_by_stiffness,
+        normalize_by_num_joints=normalize_by_num_joints,
+    )
 
 
 def joint_vel_limits(
@@ -324,36 +319,11 @@ def applied_torque_limits_by_ratio(
     limit_ratio: float = 0.8,
 ) -> torch.Tensor:
     """Penalize when the applied torque exceeds a ratio of torque limits."""
-    asset: Entity = env.scene[asset_cfg.name]
-
-    if isinstance(asset_cfg.joint_ids, slice):
-        selected_joint_ids = list(range(asset.num_joints))
-    else:
-        selected_joint_ids = list(asset_cfg.joint_ids)
-    selected_joint_names = {asset.joint_names[j] for j in selected_joint_ids}
-
-    actuator_forcerange = env.sim.model.actuator_forcerange
-    if actuator_forcerange.ndim == 3:
-        actuator_forcerange = actuator_forcerange[0]
-
-    actuator_force = asset.data.actuator_force
-    out_of_limits = []
-    for actuator in asset.actuators:
-        base_actuator = actuator.base_actuator
-        target_names = list(base_actuator.target_names)
-        ctrl_ids_local = base_actuator.ctrl_ids
-        ctrl_ids_global = base_actuator.global_ctrl_ids
-        for idx, joint_name in enumerate(target_names):
-            if joint_name not in selected_joint_names:
-                continue
-            ctrl_id_local = int(ctrl_ids_local[idx])
-            ctrl_id_global = int(ctrl_ids_global[idx])
-            effort_limit = torch.max(torch.abs(actuator_forcerange[ctrl_id_global]))
-            torque_abs = torch.abs(actuator_force[:, ctrl_id_local])
-            out_of_limits.append(torch.clamp(torque_abs - effort_limit * limit_ratio, min=0.0))
-
-    out_of_limits_tensor = torch.stack(out_of_limits, dim=-1)
-    return torch.sum(torch.square(out_of_limits_tensor), dim=-1)
+    return _applied_torque_limits_by_ratio_general(
+        env=env,
+        asset_cfg=asset_cfg,
+        limit_ratio=limit_ratio,
+    )
 
 
 def undesired_contacts(

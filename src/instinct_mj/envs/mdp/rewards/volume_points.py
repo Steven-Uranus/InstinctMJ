@@ -9,11 +9,11 @@ from mjlab.sensor import ContactSensor
 from instinct_mj.sensors.volume_points import VolumePoints
 
 if TYPE_CHECKING:
-    from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
 
 
 def volume_points_penetration(
-    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, tolerance: float = 0.0
+    env: ManagerBasedRlEnv, sensor_cfg: SceneEntityCfg, tolerance: float = 0.0
 ) -> torch.Tensor:
     """Penalize the penetration of volume points into the environment."""
     # extract the used quantities (to enable type-hinting)
@@ -32,7 +32,7 @@ def volume_points_penetration(
 
 
 def step_safety(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     volume_points_cfg: SceneEntityCfg,
     contact_forces_cfg: SceneEntityCfg,
     epsilon: float = 1e-5,

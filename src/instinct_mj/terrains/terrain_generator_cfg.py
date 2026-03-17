@@ -10,11 +10,11 @@ from .terrain_generator import FiledTerrainGenerator
 class FiledTerrainGeneratorCfg(TerrainGeneratorCfgBase):
     class_type: type = FiledTerrainGenerator
     horizontal_scale: float | None = None
-    """Optional generator-wide horizontal scale propagated to compatible sub-terrains."""
+    """Optional generator-wide horizontal scale propagated to sub-terrains that define it."""
     vertical_scale: float | None = None
-    """Optional generator-wide vertical scale propagated to compatible sub-terrains."""
+    """Optional generator-wide vertical scale propagated to sub-terrains that define it."""
     slope_threshold: float | None = None
-    """Optional generator-wide slope threshold propagated to compatible sub-terrains."""
+    """Optional generator-wide slope threshold propagated to sub-terrains that define it."""
     hfield_resolution: float | None = None
     """Sampling resolution (meters) for filed-generator mesh->hfield conversion.
 

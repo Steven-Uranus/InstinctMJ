@@ -160,6 +160,18 @@ Export ONNX for parkour:
 instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 --load-run <run_name> --export-onnx
 ```
 
+Play parkour with released weights:
+
+```bash
+instinct-play Instinct-Parkour-Target-Amp-G1-Play-v0 \
+  --load-run <downloaded_run_dir> \
+  --checkpoint-file <checkpoint_file>
+```
+
+Parkour pretrained weights:
+
+- Google Drive: [Parkour pretrained weights](https://drive.google.com/drive/folders/1B2AP5MEC5hDF7w5ws9oIiRKStL_gRxhE?usp=drive_link)
+
 Before training or playing parkour tasks, update the local dataset root in
 `src/instinct_mj/tasks/parkour/config/g1/g1_parkour_target_amp_cfg.py`:
 

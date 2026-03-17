@@ -9,7 +9,7 @@ from mjlab.managers import ManagerBase, ManagerTermBase, SceneEntityCfg
 from prettytable import PrettyTable
 
 if TYPE_CHECKING:
-    from mjlab.envs import ManagerBasedRLEnv
+    from mjlab.envs import ManagerBasedRlEnv
     from mjlab.viewer.debug_visualizer import DebugVisualizer
 
 
@@ -18,9 +18,9 @@ class MonitorSensor:
     Need implementation of `_update_buffers_impl` to acquire data in each sim step.
     """
 
-    def __init__(self, cfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg, env: ManagerBasedRlEnv):
         self.cfg = cfg
-        self._env: ManagerBasedRLEnv = env
+        self._env: ManagerBasedRlEnv = env
         self._initialize_impl()
 
     @property
@@ -55,10 +55,10 @@ class MonitorTerm(ManagerTermBase):
     in each env step.
     """
 
-    def __init__(self, cfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg, env: ManagerBasedRlEnv):
         self.cfg = cfg
         super().__init__(env)
-        self._env: ManagerBasedRLEnv = env
+        self._env: ManagerBasedRlEnv = env
 
     def update(self, *args, **kwargs):
         """Called after each environment step to acquire data from the environment."""
@@ -78,9 +78,9 @@ class MonitorTerm(ManagerTermBase):
 
 
 class MonitorManager(ManagerBase):
-    _env: ManagerBasedRLEnv
+    _env: ManagerBasedRlEnv
 
-    def __init__(self, cfg, env: ManagerBasedRLEnv):
+    def __init__(self, cfg, env: ManagerBasedRlEnv):
         self.cfg = cfg
         self._terms: dict[str, MonitorTerm | MonitorSensor] = dict()
         self._manager_owned_sensors: set[str] = set()

@@ -28,7 +28,7 @@ def _add_wall_geometries(
     cfg: "HfTerrainBaseCfg",
     rng: np.random.Generator,
 ) -> list[TerrainGeometry]:
-    """Add optional side walls, matching legacy `generate_wall` semantics."""
+    """Add optional side walls, matching the previous `generate_wall` semantics."""
     wall_prob = cfg.wall_prob
     if wall_prob is None:
         return []
@@ -342,7 +342,7 @@ class HfTerrainBaseCfg(SubTerrainCfg):
         # MuJoCo hfield sampling in mjlab assumes grid counts use
         # `int(size / horizontal_scale)` (no `+1`), and border uses
         # `int(border_width / horizontal_scale)`.
-        # Keeping legacy `+1` here introduces seam artifacts between
+        # Keeping the previous `+1` here introduces seam artifacts between
         # neighboring tiles (boundary samples fall into mismatched cells),
         # which amplifies with deeper terrains.
         width_pixels = int(self.size[0] / self.horizontal_scale)

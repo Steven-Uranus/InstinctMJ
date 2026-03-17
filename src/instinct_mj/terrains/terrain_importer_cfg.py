@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from mjlab.terrains import TerrainImporterCfg as TerrainImporterCfgBase
+from mjlab.terrains import TerrainEntityCfg as TerrainImporterCfgBase
 
 from .terrain_importer import TerrainImporter
 from .virtual_obstacle import VirtualObstacleCfg
@@ -31,7 +31,7 @@ class TerrainImporterCfg(TerrainImporterCfgBase):
     """
 
     virtual_obstacle_hfield_height_threshold: float | None = None
-    """Legacy absolute height threshold (meters) for selective ``mesh_like`` repair.
+    """Absolute height threshold (meters) for selective ``mesh_like`` repair.
 
     This is only applied on discontinuous heightfield terrains such as stairs,
     gaps, and discrete obstacles. Smooth slope/plane terrains keep pure

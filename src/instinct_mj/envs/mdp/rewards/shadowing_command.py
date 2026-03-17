@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import torch
-from mjlab.envs import ManagerBasedRlEnv as ManagerBasedRLEnv
+from mjlab.envs import ManagerBasedRlEnv
 from mjlab.managers import SceneEntityCfg
 from mjlab.utils.lab_api import math as math_utils
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 def track_joint_pos_shadowing_cmd_exp(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     std=0.5,
@@ -63,7 +63,7 @@ def track_joint_pos_shadowing_cmd_exp(
 
 
 def track_joint_vel_shadowing_cmd_exp(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     std=0.5,
@@ -105,7 +105,7 @@ def track_joint_vel_shadowing_cmd_exp(
 
 
 def track_link_pos_shadowing_cmd_exp(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     std=0.3,
@@ -147,7 +147,7 @@ def track_link_pos_shadowing_cmd_exp(
 
 
 def track_link_rot_shadowing_cmd_exp(
-    env: ManagerBasedRLEnv,
+    env: ManagerBasedRlEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     std=0.3,

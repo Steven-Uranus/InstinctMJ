@@ -102,7 +102,7 @@ class PoseRefCommandCfg(ShadowingCommandBaseCfg):
     - 0: No real-time update
     - 1: Real-time update in both position and rotation
     - -1: Real-time update in rotation only
-    NOTE: Using 0, 1, -1 for backward compatibility, because int(True) == 1 and int(False) == 0
+    NOTE: ``0``, ``1``, and ``-1`` encode the three update modes.
     """
 
     visualizer_cfg: VisualizationMarkersCfg = field(

@@ -1551,7 +1551,7 @@ def motion_matched_terrain(
     geom = None
     if not skip_source_mesh_import:
         # Encode terrain index in mesh name so runtime can recover terrain-to-origin mapping
-        # without relying on custom terrain importer compatibility fields.
+        # without relying on custom terrain importer fields.
         mesh_name = f"motion_matched_t{terrain_idx}_{uuid.uuid4().hex}"
         spec.add_mesh(
             name=mesh_name,
