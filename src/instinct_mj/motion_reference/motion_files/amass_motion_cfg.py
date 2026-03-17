@@ -102,6 +102,13 @@ class AmassMotionCfg(MotionBufferCfg):
     """ The height offset for `fill_init_reference_state` to prevent penetration when robot reset.
     """
 
+    motion_start_position_offset: tuple[float, float, float] | list[float] = (0.0, 0.0, 0.0)
+    """ Additional xyz offset applied to the motion reference origin.
+
+    Unlike ``motion_start_height_offset`` (which only affects reset height), this offset shifts the
+    reference motion itself in world coordinates, so robot reset and future reference frames move together.
+    """
+
     buffer_device: Literal["cpu", "output_device"] = "output_device"
     """ the device for the motion buffer. """
 

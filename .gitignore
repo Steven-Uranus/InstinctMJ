@@ -18,3 +18,6 @@ __pycache__/
 *.pyo
 *.pyd
 *.pyc.*
+
+# Generated mesh decomposition/cache artifacts
+.coacd_cache/

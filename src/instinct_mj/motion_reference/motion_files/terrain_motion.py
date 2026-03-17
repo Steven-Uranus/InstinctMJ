@@ -28,6 +28,7 @@ class TerrainMotion(AmassMotion):
             self._all_motion_terrain_ids = self._all_motion_terrain_ids[traj_ids]
             self._all_motion_origins_in_scene = self._all_motion_origins_in_scene[traj_ids]
             self._all_motion_num_selectable_origins = self._all_motion_num_selectable_origins[traj_ids]
+            self._all_motion_position_offsets = self._all_motion_position_offsets[traj_ids]
         super().enable_trajectories(traj_ids)
 
     def _refresh_motion_file_list(self):
@@ -41,6 +42,22 @@ class TerrainMotion(AmassMotion):
             dtype=torch.float,
             device=self.buffer_device,
         )
+        self._all_motion_position_offsets = torch.zeros(
+            len(self._all_motion_files),
+            3,
+            dtype=torch.float,
+            device=self.output_device,
+        )
+        for motion_idx, motion_spec in enumerate(self.yaml_data["motion_files"]):
+            motion_file_rel = str(motion_spec["motion_file"])
+            for pattern, offset in self.cfg.motion_file_position_offsets.items():
+                if pattern in motion_file_rel:
+                    self._all_motion_position_offsets[motion_idx] = torch.tensor(
+                        offset,
+                        dtype=torch.float,
+                        device=self.output_device,
+                    )
+                    break
         # new motion-specific attributes w.r.t amass_motion.py
         self._all_motion_terrain_ids = torch.tensor(
             [int(f["terrain_id"]) for f in self.yaml_data["motion_files"]],
@@ -152,4 +169,5 @@ class TerrainMotion(AmassMotion):
         NOTE: env_origins is ignored in this case since the terrain motion is terrain-dependent.
         """
         assigned_ids = self.env_ids_to_assigned_ids(env_ids).to(self.buffer_device)
-        return self._assigned_env_origins[assigned_ids]
+        motion_ids = self._assigned_env_motion_selection[assigned_ids].to(self.output_device)
+        return self._assigned_env_origins[assigned_ids] + self._all_motion_position_offsets[motion_ids]

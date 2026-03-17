@@ -35,12 +35,17 @@ from instinct_mj.motion_reference.motion_files.terrain_motion_cfg import Terrain
 from instinct_mj.motion_reference.utils import motion_interpolate_bilinear
 
 G1_CFG = G1_29DOF_TORSOBASE_POPSICLE_CFG
+_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+_DEFAULT_MOTION_FOLDER = os.path.abspath(
+    os.path.join(_FILE_DIR, "../../../../../../../data/20251116_50cm_kneeClimbStep1")
+)
 
-# NOTE: Change this to your local perceptive VAE dataset folder.
-# The folder should contain the motion files and a `metadata.yaml`.
-MOTION_FOLDER = (
-    "~/your/path/to/20251116_50cm_kneeClimbStep1"
-    # "~/your/path/to/20251116_50cm_kneeClimbStep1/20251106_diveroll4_roadRamp_noWall"
+# NOTE: Default perceptive VAE dataset on this machine.
+# You can override this without editing code by setting:
+#   INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/dataset_root
+MOTION_FOLDER = os.environ.get(
+    "INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER",
+    _DEFAULT_MOTION_FOLDER,
 )
 
 
@@ -70,6 +75,8 @@ class TerrainMotionCfg(TerrainMotionCfgBase):
 
     env_starting_stub_sampling_strategy: str = "concat_motion_bins"
 
+    motion_file_position_offsets: dict = field(default_factory=lambda: {"zd2_ring_room": (0.0, 0.8, 0.0)})
+
 
 motion_reference_cfg = MotionReferenceManagerCfg(
     name="motion_reference",
@@ -98,11 +105,10 @@ motion_reference_cfg = MotionReferenceManagerCfg(
     update_period=0.02,
     num_frames=10,
     data_start_from="current_time",
-    # set the robot_reference directly at where they are in the scene
-    # DO NOT FORGET to change this when in actual training
-    visualizing_robot_offset=(2.0, 0.0, 0.0),
-    visualizing_robot_from="reference_frame",
-    visualizing_marker_types=["relative_links", "links"],
+    # Keep debug visualization in the raw motion/terrain frame by default.
+    visualizing_robot_offset=(0.0, 0.0, 0.0),
+    visualizing_robot_from="aiming_frame",
+    visualizing_marker_types=["links"],
     motion_buffers={
         "TerrainMotion": TerrainMotionCfg(),
     },
@@ -111,6 +117,7 @@ motion_reference_cfg = MotionReferenceManagerCfg(
 motion_reference_cfg_play = deepcopy(motion_reference_cfg)
 motion_reference_cfg_play.debug_vis = True
 motion_reference_cfg_play.reference_entity_name = "robot_reference"
+motion_reference_cfg_play.visualizing_robot_from = "aiming_frame"
 
 
 def make_vae_observations() -> dict[str, ObsGroupCfg]:
@@ -346,9 +353,7 @@ class G1PerceptiveVaeEnvCfg_PLAY(G1PerceptiveVaeEnvCfg):
         self.terminations["link_pos_too_far"] = None
         self.terminations["dataset_exhausted"].params["reset_without_notice"] = True
 
-        # put the reference in scene and move the robot elsewhere
-        # self.events.reset_robot.params["position_offset"] = [0.0, 1.0, 2.0]
-        # self.scene.motion_reference.visualizing_robot_offset = (0.0, 0.0, 0.0)
+        self.events["reset_robot"].params["position_offset"] = [0.0, 0.0, 0.0]
 
         # hack the randomization range
         # self.events["add_joint_default_pos"].params["offset_distribution_params"] = (-0.05, 0.05)

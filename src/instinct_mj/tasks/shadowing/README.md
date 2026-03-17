@@ -76,15 +76,19 @@ instinct-play Instinct-Shadowing-WholeBody-Plane-G1-Play-v0 --load-run <run_name
 - `Instinct-Perceptive-Shadowing-G1-v0` (train)
 - `Instinct-Perceptive-Shadowing-G1-Play-v0` (play)
 
-1. Go to `perceptive/config/g1/perceptive_shadowing_cfg.py` and update the local dataset root here:
+1. By default the repo now vendors a mixed dataset at:
 
-    ```python
-    MOTION_FOLDER = "~/your/path/to/20251116_50cm_kneeClimbStep1"
+    ```text
+    InstinctMJ/data/20251116_50cm_kneeClimbStep1
     ```
 
-    The motion buffer and terrain generator read `MOTION_FOLDER` and the `metadata.yaml` under that directory.
+    If you want to override it, set:
 
-    - `MOTION_FOLDER`: The local folder containing the motion files and `metadata.yaml`.
+    ```bash
+    export INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/your/dataset_root
+    ```
+
+    The motion buffer and terrain generator read the dataset root and the `metadata.yaml` under that directory.
 
 2. Train the policy:
 ```bash
@@ -113,15 +117,19 @@ instinct-play Instinct-Perceptive-Shadowing-G1-Play-v0 \
 - `Instinct-Perceptive-Vae-G1-v0` (train)
 - `Instinct-Perceptive-Vae-G1-Play-v0` (play)
 
-1. Go to `perceptive/config/g1/perceptive_vae_cfg.py` and update the local dataset root here:
+1. By default the repo now vendors a mixed dataset at:
 
-    ```python
-    MOTION_FOLDER = "~/your/path/to/20251116_50cm_kneeClimbStep1"
+    ```text
+    InstinctMJ/data/20251116_50cm_kneeClimbStep1
     ```
 
-    The VAE motion buffer and terrain generator read `MOTION_FOLDER` and the `metadata.yaml` under that directory.
+    If you want to override it, set:
 
-    - `MOTION_FOLDER`: The local folder containing the motion files and `metadata.yaml`.
+    ```bash
+    export INSTINCT_MJ_PERCEPTIVE_MOTION_FOLDER=/path/to/your/dataset_root
+    ```
+
+    The VAE motion buffer and terrain generator read the dataset root and the `metadata.yaml` under that directory.
 
 2. Train the policy:
 ```bash

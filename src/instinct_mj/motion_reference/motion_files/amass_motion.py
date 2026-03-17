@@ -238,6 +238,7 @@ class AmassMotion(MotionBuffer):
                 # if any link is below the ground, raise it
                 base_pos_w[..., 2] += -min_link_height
         base_pos_w[..., 2] += self.cfg.motion_start_height_offset
+        base_pos_w += torch.tensor(self.cfg.motion_start_position_offset, device=base_pos_w.device, dtype=base_pos_w.dtype)
 
         state_buffer.joint_pos[env_ids] = joint_pos.to(self.output_device)
         state_buffer.joint_vel[env_ids] = joint_vel.to(self.output_device)
@@ -400,6 +401,13 @@ class AmassMotion(MotionBuffer):
         data_buffer.link_pos_w[env_ids] += (
             self._get_motion_based_origin(env_origins, env_ids).unsqueeze(1).unsqueeze(1)
         )  # avoiding inplace operation
+        motion_start_position_offset = torch.tensor(
+            self.cfg.motion_start_position_offset,
+            device=self.output_device,
+            dtype=data_buffer.base_pos_w.dtype,
+        )
+        data_buffer.base_pos_w[env_ids] += motion_start_position_offset.view(1, 1, 3)
+        data_buffer.link_pos_w[env_ids] += motion_start_position_offset.view(1, 1, 1, 3)
 
     def get_current_motion_identifiers(self, env_ids: Sequence[int] | torch.Tensor | None = None) -> list[str]:
         """Get the identifiers of the motion files for each env.
