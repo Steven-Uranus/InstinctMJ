@@ -28,5 +28,5 @@ def register_virtual_obstacle_to_sensor(
         sensor = env.scene[sensor_cfg.name]
         sensor.register_virtual_obstacles(virtual_obstacles)
 
-    if enable_debug_vis:
+    if enable_debug_vis and hasattr(env.scene.terrain, "set_debug_vis"):
         env.scene.terrain.set_debug_vis(True)

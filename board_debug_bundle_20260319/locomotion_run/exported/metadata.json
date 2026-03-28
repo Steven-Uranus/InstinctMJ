@@ -1,0 +1,50 @@
+{
+  "task_id": "Instinct-Locomotion-Flat-G1-Play-v0",
+  "obs_format": {
+    "policy": {
+      "base_ang_vel": [
+        3
+      ],
+      "projected_gravity": [
+        3
+      ],
+      "velocity_commands": [
+        3
+      ],
+      "joint_pos": [
+        29
+      ],
+      "joint_vel": [
+        29
+      ],
+      "actions": [
+        29
+      ]
+    },
+    "critic": {
+      "base_lin_vel": [
+        3
+      ],
+      "base_ang_vel": [
+        3
+      ],
+      "projected_gravity": [
+        3
+      ],
+      "velocity_commands": [
+        3
+      ],
+      "joint_pos": [
+        29
+      ],
+      "joint_vel": [
+        29
+      ],
+      "actions": [
+        29
+      ]
+    }
+  },
+  "num_actions": 29,
+  "num_rewards": 1
+}

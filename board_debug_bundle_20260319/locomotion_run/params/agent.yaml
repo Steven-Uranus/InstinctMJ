@@ -1,0 +1,84 @@
+seed: 42
+device: cuda:0
+num_steps_per_env: 24
+max_iterations: 5000
+policy:
+  class_name: ActorCritic
+  init_noise_std: 1.0
+  actor_hidden_dims:
+  - 256
+  - 128
+  - 128
+  critic_hidden_dims:
+  - 256
+  - 128
+  - 128
+  activation: elu
+  num_moe_experts: null
+  moe_gate_hidden_dims: null
+  encoder_configs: null
+  critic_encoder_configs: null
+  vae_encoder_kwargs: null
+  vae_decoder_kwargs: null
+  vae_latent_size: null
+  vae_input_subobs_components: null
+  vae_aux_subobs_components: null
+algorithm:
+  class_name: PPO
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  entropy_coef: 0.008
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 0.001
+  optimizer_class_name: AdamW
+  schedule: adaptive
+  gamma: 0.99
+  lam: 0.95
+  advantage_mixing_weights: 1.0
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  clip_min_std: 1.0e-12
+  kl_loss_func: null
+  kl_loss_coef: null
+  using_ppo: null
+  teacher_policy_class_name: null
+  teacher_policy: null
+  teacher_logdir: null
+  label_action_with_critic_obs: null
+  teacher_act_prob: null
+  update_times_scale: null
+  distillation_loss_coef: null
+  distill_target: null
+  actor_state_key: null
+  reference_state_key: null
+  discriminator_class_name: null
+  discriminator_kwargs: null
+  discriminator_optimizer_class_name: null
+  discriminator_optimizer_kwargs: null
+  discriminator_reward_coef: null
+  discriminator_reward_type: null
+  discriminator_loss_func: null
+  discriminator_loss_coef: null
+  discriminator_gradient_penalty_coef: null
+  discriminator_weight_decay_coef: null
+  discriminator_logit_weight_decay_coef: null
+  discriminator_gradient_torlerance: null
+  discriminator_backbone_gradient_only: null
+normalizers:
+  policy:
+    class_name: EmpiricalNormalization
+  critic:
+    class_name: EmpiricalNormalization
+save_interval: 1000
+log_interval: 10
+experiment_name: g1_locomotion_flat
+run_name: ''
+resume: false
+load_run: .*
+load_checkpoint: model_.*.pt
+ckpt_manipulator: null
+ckpt_manipulator_kwargs: {}
+policy_observation_group: policy
+critic_observation_group: critic
